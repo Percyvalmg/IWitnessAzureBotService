@@ -104,6 +104,9 @@ const whatsAppAdapter = new TwilioWhatsAppAdapter({
     authToken: process.env.AuthToken, // Auth Token
     phoneNumber: 'whatsapp:+14155238886', // The From parameter consisting of whatsapp: followed by the sending WhatsApp number (using E.164 formatting)
     endpointUrl: 'https://iwitness.azurewebsites.net/api/whatsapp/messages' // Endpoint URL you configured in the sandbox, used for validation
+},{
+    appId: process.env.MicrosoftAppId,
+    appPassword: process.env.MicrosoftAppPassword
 });
 
 // WhatsApp endpoint for Twilio
