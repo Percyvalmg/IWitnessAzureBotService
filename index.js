@@ -21,11 +21,19 @@ const { FlightBookingRecognizer } = require('./dialogs/flightBookingRecognizer')
 // This bot's main dialog.
 const { DialogAndWelcomeBot } = require('./bots/dialogAndWelcomeBot');
 const { MainDialog } = require('./dialogs/mainDialog');
+const { MainMenuDialog } = require('./dialogs/mainMenuDialog');
 const { IWitnessBot } = require('./bots/iwitnessBot');
 
 // the bot's booking dialog
 const { BookingDialog } = require('./dialogs/bookingDialog');
 const BOOKING_DIALOG = 'bookingDialog';
+
+const { CaptureEvidenceDialog } = require('./dialogs/captureEvidenceDialog');
+const CAPTURE_EVIDENCE_DIALOG = 'captureEvidenceDialog';
+const { EmergencyDialog } = require('./dialogs/emergencyDialog');
+const EMERGENCY_DIALOG = 'emergencyDialog';
+const { RetrieveEvidenceDialog } = require('./dialogs/retrieveEvidenceDialog');
+const RETRIEVE_EVIDENCE_DIALOG = 'retrieveEvidenceDialog';
 
 // Create adapter.
 // See https://aka.ms/about-bot-adapter to learn more about adapters.
@@ -83,9 +91,14 @@ const luisRecognizer = new FlightBookingRecognizer(luisConfig);
 
 // Create the main dialog.
 const bookingDialog = new BookingDialog(BOOKING_DIALOG);
+const captureEvidenceDialog = new CaptureEvidenceDialog(CAPTURE_EVIDENCE_DIALOG);
+const emergencyDialog = new EmergencyDialog(EMERGENCY_DIALOG);
+const retrieveEvidenceDialog = new RetrieveEvidenceDialog(RETRIEVE_EVIDENCE_DIALOG);
+const mainMenuDialog = new MainMenuDialog(luisRecognizer, emergencyDialog, captureEvidenceDialog, retrieveEvidenceDialog);
+
 const dialog = new MainDialog(luisRecognizer, bookingDialog);
 const bot = new DialogAndWelcomeBot(conversationState, userState, dialog);
-const twilioBot = new IWitnessBot(conversationState, userState, dialog);
+const twilioBot = new IWitnessBot(conversationState, userState, mainMenuDialog);
 
 // Create HTTP server
 const server = restify.createServer();
