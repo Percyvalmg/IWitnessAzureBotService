@@ -21,6 +21,7 @@ const { FlightBookingRecognizer } = require('./dialogs/flightBookingRecognizer')
 // This bot's main dialog.
 const { DialogAndWelcomeBot } = require('./bots/dialogAndWelcomeBot');
 const { MainDialog } = require('./dialogs/mainDialog');
+const { IWitnessBot } = require('./bots/iwitnessBot');
 
 // the bot's booking dialog
 const { BookingDialog } = require('./dialogs/bookingDialog');
@@ -72,7 +73,11 @@ const userState = new UserState(memoryStorage);
 
 // If configured, pass in the FlightBookingRecognizer.  (Defining it externally allows it to be mocked for tests)
 const { LuisAppId, LuisAPIKey, LuisAPIHostName } = process.env;
-const luisConfig = { applicationId: LuisAppId, endpointKey: LuisAPIKey, endpoint: `https://${ LuisAPIHostName }` };
+const luisConfig = {
+    applicationId: LuisAppId,
+    endpointKey: LuisAPIKey,
+    endpoint: `https://${ LuisAPIHostName }`
+};
 
 const luisRecognizer = new FlightBookingRecognizer(luisConfig);
 
@@ -80,6 +85,7 @@ const luisRecognizer = new FlightBookingRecognizer(luisConfig);
 const bookingDialog = new BookingDialog(BOOKING_DIALOG);
 const dialog = new MainDialog(luisRecognizer, bookingDialog);
 const bot = new DialogAndWelcomeBot(conversationState, userState, dialog);
+const twilioBot = new IWitnessBot(conversationState, userState, dialog);
 
 // Create HTTP server
 const server = restify.createServer();
@@ -104,7 +110,7 @@ const whatsAppAdapter = new TwilioWhatsAppAdapter({
     authToken: process.env.AuthToken, // Auth Token
     phoneNumber: 'whatsapp:+14155238886', // The From parameter consisting of whatsapp: followed by the sending WhatsApp number (using E.164 formatting)
     endpointUrl: 'https://iwitness.azurewebsites.net/api/whatsapp/messages' // Endpoint URL you configured in the sandbox, used for validation
-},{
+}, {
     appId: process.env.MicrosoftAppId,
     appPassword: process.env.MicrosoftAppPassword
 });
@@ -113,7 +119,7 @@ const whatsAppAdapter = new TwilioWhatsAppAdapter({
 server.post('/api/whatsapp/messages', (req, res) => {
     whatsAppAdapter.processActivity(req, res, async (context) => {
         // Route to main dialog.
-        await bot.run(context);
+        await twilioBot.run(context);
     });
 });
 
