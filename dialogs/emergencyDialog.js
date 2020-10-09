@@ -6,7 +6,7 @@ const { DateResolverDialog } = require('./dateResolverDialog');
 const CONFIRM_PROMPT = 'confirmPrompt';
 const DATE_RESOLVER_DIALOG = 'dateResolverDialog';
 const TEXT_PROMPT = 'textPrompt';
-const WATERFALL_DIALOG = 'waterfallDialog';
+const EMERGENCY_WATERFALL_DIALOG = 'emergencyWaterfallDialog';
 
 class EmergencyDialog extends CancelAndHelpDialog {
     constructor(id) {
@@ -15,12 +15,12 @@ class EmergencyDialog extends CancelAndHelpDialog {
         this.addDialog(new TextPrompt(TEXT_PROMPT))
             .addDialog(new ConfirmPrompt(CONFIRM_PROMPT))
             .addDialog(new DateResolverDialog(DATE_RESOLVER_DIALOG))
-            .addDialog(new WaterfallDialog(WATERFALL_DIALOG, [
+            .addDialog(new WaterfallDialog(EMERGENCY_WATERFALL_DIALOG, [
                 this.introStep.bind(this),
                 this.finalStep.bind(this)
             ]));
 
-        this.initialDialogId = WATERFALL_DIALOG;
+        this.initialDialogId = EMERGENCY_WATERFALL_DIALOG;
     }
 
     async introStep(stepContext) {
