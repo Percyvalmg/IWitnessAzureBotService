@@ -16,7 +16,7 @@ const restify = require('restify');
 // See https://aka.ms/bot-services to learn more about the different parts of a bot.
 const { BotFrameworkAdapter, ConversationState, InputHints, MemoryStorage, UserState } = require('botbuilder');
 
-const { FlightBookingRecognizer } = require('./dialogs/flightBookingRecognizer');
+const { IWitnessRecognizer } = require('./dialogs/iWitnessRecognizer');
 
 // This bot's main dialog.
 const { DialogAndWelcomeBot } = require('./bots/dialogAndWelcomeBot');
@@ -30,8 +30,10 @@ const BOOKING_DIALOG = 'bookingDialog';
 
 const { CaptureEvidenceDialog } = require('./dialogs/captureEvidenceDialog');
 const CAPTURE_EVIDENCE_DIALOG = 'captureEvidenceDialog';
+
 const { EmergencyDialog } = require('./dialogs/emergencyDialog');
 const EMERGENCY_DIALOG = 'emergencyDialog';
+
 const { RetrieveEvidenceDialog } = require('./dialogs/retrieveEvidenceDialog');
 const RETRIEVE_EVIDENCE_DIALOG = 'retrieveEvidenceDialog';
 
@@ -87,7 +89,7 @@ const luisConfig = {
     endpoint: `https://${ LuisAPIHostName }`
 };
 
-const luisRecognizer = new FlightBookingRecognizer(luisConfig);
+const luisRecognizer = new IWitnessRecognizer(luisConfig);
 
 // Create the main dialog.
 const bookingDialog = new BookingDialog(BOOKING_DIALOG);
@@ -97,7 +99,7 @@ const retrieveEvidenceDialog = new RetrieveEvidenceDialog(RETRIEVE_EVIDENCE_DIAL
 const mainMenuDialog = new MainMenuDialog(luisRecognizer, emergencyDialog, captureEvidenceDialog, retrieveEvidenceDialog);
 
 const dialog = new MainDialog(luisRecognizer, bookingDialog);
-const bot = new DialogAndWelcomeBot(conversationState, userState, dialog);
+const bot = new DialogAndWelcomeBot(conversationState, userState, mainMenuDialog);
 const twilioBot = new IWitnessBot(conversationState, userState, mainMenuDialog);
 
 // Create HTTP server
