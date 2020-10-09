@@ -84,12 +84,12 @@ class MainMenuDialog extends CancelAndHelpDialog {
             return await stepContext.beginDialog('emergencyDialog');
         }
 
-        case 'Capture Evidence ': {
+        case 'CaptureEvidence': {
             // Run the captureEvidenceDialog passing in whatever details we have from the LUIS call, it will fill out the remainder.
             return await stepContext.beginDialog('captureEvidenceDialog');
         }
 
-        case 'Retrieve Evidence': {
+        case 'RetrieveEvidence': {
             // Run the retrieveEvidenceDialog passing in whatever details we have from the LUIS call, it will fill out the remainder.
             return await stepContext.beginDialog('retrieveEvidenceDialog');
         }
