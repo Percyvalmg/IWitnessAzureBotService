@@ -1,19 +1,22 @@
 {
   "luis_schema_version": "3.2.0",
   "versionId": "0.1",
-  "name": "FlightBooking",
+  "name": "MainMenuSelection",
   "desc": "Luis Model for CoreBot",
   "culture": "en-us",
   "tokenizerVersion": "1.0.0",
   "intents": [
     {
-      "name": "BookFlight"
+      "name": "Emergency"
+    },
+    {
+      "name": "CaptureEvidence"
+    },
+    {
+      "name": "RetrieveEvidence"
     },
     {
       "name": "Cancel"
-    },
-    {
-      "name": "GetWeather"
     },
     {
       "name": "None"
@@ -92,31 +95,59 @@
   "patterns": [],
   "utterances": [
     {
-      "text": "book a flight",
-      "intent": "BookFlight",
+      "text": "Capture evidence",
+      "intent": "CaptureEvidence",
       "entities": []
     },
     {
-      "text": "book a flight from new york",
-      "intent": "BookFlight",
-      "entities": [
-        {
-          "entity": "From",
-          "startPos": 19,
-          "endPos": 26
-        }
-      ]
+      "text": "can i capture evidence",
+      "intent": "CaptureEvidence",
+      "entities": []
     },
     {
-      "text": "book a flight from seattle",
-      "intent": "BookFlight",
-      "entities": [
-        {
-          "entity": "From",
-          "startPos": 19,
-          "endPos": 25
-        }
-      ]
+      "text": "2",
+      "intent": "CaptureEvidence",
+      "entities": []
+    },
+    {
+      "text": "2.",
+      "intent": "CaptureEvidence",
+      "entities": []
+    },
+    {
+      "text": "two",
+      "intent": "CaptureEvidence",
+      "entities": []
+    },
+    {
+      "text": "evidence",
+      "intent": "CaptureEvidence",
+      "entities": []
+    },
+    {
+      "text": "Emergency",
+      "intent": "Emergency",
+      "entities": []
+    },
+    {
+      "text": "I have an emergency",
+      "intent": "Emergency",
+      "entities": []
+    },
+    {
+      "text": "1",
+      "intent": "Emergency",
+      "entities": []
+    },
+    {
+      "text": "1.",
+      "intent": "Emergency",
+      "entities": []
+    },
+    {
+      "text": "one",
+      "intent": "Emergency",
+      "entities": []
     },
     {
       "text": "book a hotel in new york",

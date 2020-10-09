@@ -18,7 +18,6 @@ class DialogAndWelcomeBot extends DialogBot {
                     await dialog.run(context, conversationState.createProperty('DialogState'));
                 }
             }
-
             // By calling next() you ensure that the next BotHandler is run.
             await next();
         });

@@ -10,7 +10,7 @@ class IWitnessBot extends DialogBot {
                 if (membersAdded[cnt].id !== context.activity.recipient.id) {
                     const reply = {
                         type: 'message',
-                        text: 'This is a message with an attachment.',
+                        text: 'Hi Welcome to the IWitness App.',
                         attachments: [
                             {
                                 contentType: 'image/png',

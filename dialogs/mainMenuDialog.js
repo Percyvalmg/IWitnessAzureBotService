@@ -5,9 +5,9 @@ const { CancelAndHelpDialog } = require('./cancelAndHelpDialog');
 
 const { MessageFactory, InputHints } = require('botbuilder');
 const { LuisRecognizer } = require('botbuilder-ai');
-const { TextPrompt, WaterfallDialog } = require('botbuilder-dialogs');
+const { TextPrompt, WaterfallDialog, DialogSet, DialogTurnStatus } = require('botbuilder-dialogs');
 
-const MAIN_WATERFALL_DIALOG = 'mainWaterfallDialog';
+const MAIN_MENU_WATERFALL_DIALOG = 'mainMainWaterfallDialog';
 
 class MainMenuDialog extends CancelAndHelpDialog {
     constructor(luisRecognizer, emergencyDialog, captureEvidenceDialog, retrieveEvidenceDialog) {
@@ -26,13 +26,24 @@ class MainMenuDialog extends CancelAndHelpDialog {
             .addDialog(emergencyDialog)
             .addDialog(captureEvidenceDialog)
             .addDialog(retrieveEvidenceDialog)
-            .addDialog(new WaterfallDialog(MAIN_WATERFALL_DIALOG, [
+            .addDialog(new WaterfallDialog(MAIN_MENU_WATERFALL_DIALOG, [
                 this.introStep.bind(this),
                 this.actStep.bind(this),
                 this.finalStep.bind(this)
             ]));
 
-        this.initialDialogId = MAIN_WATERFALL_DIALOG;
+        this.initialDialogId = MAIN_MENU_WATERFALL_DIALOG;
+    }
+
+    async run(turnContext, accessor) {
+        const dialogSet = new DialogSet(accessor);
+        dialogSet.add(this);
+
+        const dialogContext = await dialogSet.createContext(turnContext);
+        const results = await dialogContext.continueDialog();
+        if (results.status === DialogTurnStatus.empty) {
+            await dialogContext.beginDialog(this.id);
+        }
     }
 
     async introStep(stepContext) {
@@ -44,10 +55,8 @@ class MainMenuDialog extends CancelAndHelpDialog {
 
         const messageText = stepContext.options.restartMsg ? stepContext.options.restartMsg : 'Hi I am the IWitness Bot. ' +
             '\nWhat can I help you with today?' +
-            '\n\nPlease select any one of the below options:"' +
-            '\n1. Emergency' +
-            '\n2. Capture Evidence' +
-            '\n3. Retrieve Evidence';
+            '\n\nWe allow you to capture evidence and contact support services in the case of an emergency.' +
+            '\nYou can try something like "capture evidence", or "retrieve evidence" or "i need help"';
 
         const promptMessage = MessageFactory.text(messageText, messageText, InputHints.ExpectingInput);
         return await stepContext.prompt('TextPrompt', { prompt: promptMessage });
@@ -62,43 +71,27 @@ class MainMenuDialog extends CancelAndHelpDialog {
 
         if (!this.luisRecognizer.isConfigured) {
             // LUIS is not configured, we just run the BookingDialog path.
-            return await stepContext.beginDialog('bookingDialog', response);
+            console.log('LUIS is not configured, we just run the BookingDialog path');
+            return await stepContext.beginDialog('emergencyDialog', response);
         }
 
         // Call LUIS and gather any potential booking details. (Note the TurnContext has the response to the prompt)
         const luisResult = await this.luisRecognizer.executeLuisQuery(stepContext.context);
+        console.log('result', luisResult);
         switch (LuisRecognizer.topIntent(luisResult)) {
-        case 'Emergency':
-        case '1': {
-            // Extract the values for the composite entities from the LUIS result.
-            const data = this.luisRecognizer.getFromEntities(luisResult);
-
-            console.log('LUIS extracted this data and classified it under emergency:', JSON.stringify(data));
-
+        case 'Emergency': {
             // Run the emergencyDialog passing in whatever details we have from the LUIS call, it will fill out the remainder.
-            return await stepContext.beginDialog('emergencyDialog', data);
+            return await stepContext.beginDialog('emergencyDialog');
         }
 
-        case 'Capture Evidence ':
-        case '2': {
-            // Extract the values for the composite entities from the LUIS result.
-            const data = this.luisRecognizer.getFromEntities(luisResult);
-
-            console.log('LUIS extracted this data and classified it under capture evidence:', JSON.stringify(data));
-
+        case 'Capture Evidence ': {
             // Run the captureEvidenceDialog passing in whatever details we have from the LUIS call, it will fill out the remainder.
-            return await stepContext.beginDialog('captureEvidenceDialog', data);
+            return await stepContext.beginDialog('captureEvidenceDialog');
         }
 
-        case 'Retrieve Evidence':
-        case '3': {
-            // Extract the values for the composite entities from the LUIS result.
-            const data = this.luisRecognizer.getFromEntities(luisResult);
-
-            console.log('LUIS extracted this data and classified it under retrieve evidence:', JSON.stringify(data));
-
+        case 'Retrieve Evidence': {
             // Run the retrieveEvidenceDialog passing in whatever details we have from the LUIS call, it will fill out the remainder.
-            return await stepContext.beginDialog('retrieveEvidenceDialog', data);
+            return await stepContext.beginDialog('retrieveEvidenceDialog');
         }
 
         default: {
@@ -114,7 +107,7 @@ class MainMenuDialog extends CancelAndHelpDialog {
 
     /**
      * This is the final step in the main waterfall dialog.
-     * It wraps up the sample "book a flight" interaction with a simple confirmation.
+     * It wraps up the sample "delete conversation" interaction with a simple confirmation.
      */
     async finalStep(stepContext) {
         // If the child dialog ("bookingDialog") was cancelled or the user failed to confirm, the Result here will be null.
