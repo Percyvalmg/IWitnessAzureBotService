@@ -88,7 +88,7 @@ const luisRecognizer = new IWitnessRecognizer(luisConfig);
 
 // Create the main dialog.
 const captureEvidenceDialog = new CaptureEvidenceDialog(CAPTURE_EVIDENCE_DIALOG);
-const emergencyDialog = new EmergencyDialog(EMERGENCY_DIALOG);
+const emergencyDialog = new EmergencyDialog(EMERGENCY_DIALOG, luisRecognizer);
 const retrieveEvidenceDialog = new RetrieveEvidenceDialog(RETRIEVE_EVIDENCE_DIALOG);
 const mainMenuDialog = new MainMenuDialog(luisRecognizer, emergencyDialog, captureEvidenceDialog, retrieveEvidenceDialog);
 
@@ -111,24 +111,24 @@ server.post('/api/messages', (req, res) => {
     });
 });
 
-const { TwilioWhatsAppAdapter } = require('@botbuildercommunity/adapter-twilio-whatsapp');
-const whatsAppAdapter = new TwilioWhatsAppAdapter({
-    accountSid: process.env.AccountSID, // Account SID
-    authToken: process.env.AuthToken, // Auth Token
-    phoneNumber: 'whatsapp:+14155238886', // The From parameter consisting of whatsapp: followed by the sending WhatsApp number (using E.164 formatting)
-    endpointUrl: 'https://iwitness.azurewebsites.net/api/whatsapp/messages' // Endpoint URL you configured in the sandbox, used for validation
-}, {
-    appId: process.env.MicrosoftAppId,
-    appPassword: process.env.MicrosoftAppPassword
-});
+// const { TwilioWhatsAppAdapter } = require('@botbuildercommunity/adapter-twilio-whatsapp');
+// const whatsAppAdapter = new TwilioWhatsAppAdapter({
+//     accountSid: process.env.AccountSID, // Account SID
+//     authToken: process.env.AuthToken, // Auth Token
+//     phoneNumber: 'whatsapp:+14155238886', // The From parameter consisting of whatsapp: followed by the sending WhatsApp number (using E.164 formatting)
+//     endpointUrl: 'https://iwitness.azurewebsites.net/api/whatsapp/messages' // Endpoint URL you configured in the sandbox, used for validation
+// }, {
+//     appId: process.env.MicrosoftAppId,
+//     appPassword: process.env.MicrosoftAppPassword
+// });
 
-// WhatsApp endpoint for Twilio
-server.post('/api/whatsapp/messages', (req, res) => {
-    whatsAppAdapter.processActivity(req, res, async (context) => {
-        // Route to main dialog.
-        await twilioBot.run(context);
-    });
-});
+// // WhatsApp endpoint for Twilio
+// server.post('/api/whatsapp/messages', (req, res) => {
+//     whatsAppAdapter.processActivity(req, res, async (context) => {
+//         // Route to main dialog.
+//         await twilioBot.run(context);
+//     });
+// });
 
 // Listen for Upgrade requests for Streaming.
 server.on('upgrade', (req, socket, head) => {
