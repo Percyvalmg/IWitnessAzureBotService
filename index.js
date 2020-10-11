@@ -107,7 +107,7 @@ server.post('/api/messages', (req, res) => {
     // Route received a request to adapter for processing
     adapter.processActivity(req, res, async (turnContext) => {
         // route to bot activity handler.
-        await bot.run(turnContext);
+        await twilioBot.run(turnContext);
     });
 });
 

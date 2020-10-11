@@ -53,10 +53,11 @@ class MainMenuDialog extends CancelAndHelpDialog {
             return await stepContext.next();
         }
 
-        const messageText = stepContext.options.restartMsg ? stepContext.options.restartMsg : 'Hi I am the IWitness Bot. ' +
-            '\nWhat can I help you with today?' +
-            '\n\nWe allow you to capture evidence and contact support services in the case of an emergency.' +
-            '\nYou can try something like "capture evidence", or "retrieve evidence" or "i need help"';
+        const messageText = stepContext.options.restartMsg ? stepContext.options.restartMsg : 'Hi I am the IWitness Bot.' +
+            '\nWhich of the below can i assist you with today?' +
+            '\n\n1. Emergency' +
+            '\n2. Capture Evidence' +
+            '\n3. Retrieve Evidence';
 
         const promptMessage = MessageFactory.text(messageText, messageText, InputHints.ExpectingInput);
         return await stepContext.prompt('TextPrompt', { prompt: promptMessage });
@@ -77,7 +78,6 @@ class MainMenuDialog extends CancelAndHelpDialog {
 
         // Call LUIS and gather any potential booking details. (Note the TurnContext has the response to the prompt)
         const luisResult = await this.luisRecognizer.executeLuisQuery(stepContext.context);
-        console.log('result', luisResult);
         switch (LuisRecognizer.topIntent(luisResult)) {
         case 'Emergency': {
             // Run the emergencyDialog passing in whatever details we have from the LUIS call, it will fill out the remainder.
@@ -89,16 +89,34 @@ class MainMenuDialog extends CancelAndHelpDialog {
             return await stepContext.beginDialog('captureEvidenceDialog');
         }
 
+        case 'Cancel': {
+            const context = stepContext.result;
+            return await stepContext.next(context);
+        }
+
         case 'RetrieveEvidence': {
             // Run the retrieveEvidenceDialog passing in whatever details we have from the LUIS call, it will fill out the remainder.
             return await stepContext.beginDialog('retrieveEvidenceDialog');
         }
 
         default: {
-            // Catch all for unhandled intents
-            const didntUnderstandMessageText = `Sorry, I didn't get that. Please try asking in a different way (intent was ${ LuisRecognizer.topIntent(luisResult) })\n
+            switch (stepContext.result) {
+            case '1':
+            case 'one':
+                return await stepContext.beginDialog('emergencyDialog');
+            case '2':
+            case 'two':
+                return await stepContext.beginDialog('captureEvidenceDialog');
+            case '3':
+            case 'three':
+                return await stepContext.beginDialog('retrieveEvidenceDialog');
+            default: {
+                const didntUnderstandMessageText = `Sorry, I didn't get that. Please try asking in a different way (intent was ${ LuisRecognizer.topIntent(luisResult) })\n
              \n\n The IWitness Team is currently working on making me better`;
-            await stepContext.context.sendActivity(didntUnderstandMessageText, didntUnderstandMessageText, InputHints.IgnoringInput);
+                await stepContext.context.sendActivity(didntUnderstandMessageText, didntUnderstandMessageText, InputHints.IgnoringInput);
+            }
+            }
+            // Catch all for unhandled intents
         }
         }
 
@@ -110,12 +128,24 @@ class MainMenuDialog extends CancelAndHelpDialog {
      * It wraps up the sample "delete conversation" interaction with a simple confirmation.
      */
     async finalStep(stepContext) {
+        const luisResult = await this.luisRecognizer.executeLuisQuery(stepContext.context);
+        if (stepContext.result) {
+            // Now we have all the booking details.
+
+            // This is where calls to the booking AOU service or database would go.
+
+            // If the call to the booking service was successful tell the user.
+            const msg = 'For your safety please clear the above conversation.';
+            await stepContext.context.sendActivity(msg, msg, InputHints.IgnoringInput);
+        } else if (LuisRecognizer.topIntent(luisResult) === 'Cancel') {
+            // Run the retrieveEvidenceDialog passing in whatever details we have from the LUIS call, it will fill out the remainder.
+            const msg = 'Thank you for using our service. \n\n Have an amazing day!';
+            return await stepContext.context.sendActivity(msg, msg, InputHints.IgnoringInput);
+        }
         // If the child dialog ("bookingDialog") was cancelled or the user failed to confirm, the Result here will be null.
-        const msg = 'For your safety please clear the above conversation. \n\nHave an amazing day!';
-        await stepContext.context.sendActivity(msg, msg, InputHints.IgnoringInput);
 
         // Restart the main dialog with a different message the second time around
-        return await stepContext.replaceDialog(this.initialDialogId, { restartMsg: 'What else can I do for you?' });
+        return await stepContext.replaceDialog(this.initialDialogId, { restartMsg: 'What else can I do for you?\n\n1. Emergency\n2. Capture Evidence\n3. Retrieve Evidence' });
     }
 }
 
