@@ -19,15 +19,10 @@ const { BotFrameworkAdapter, ConversationState, InputHints, MemoryStorage, UserS
 const { IWitnessRecognizer } = require('./dialogs/iWitnessRecognizer');
 
 // This bot's main dialog.
-const { DialogAndWelcomeBot } = require('./bots/dialogAndWelcomeBot');
-const { MainDialog } = require('./dialogs/mainDialog');
 const { MainMenuDialog } = require('./dialogs/mainMenuDialog');
 const { IWitnessBot } = require('./bots/iwitnessBot');
 
-// the bot's booking dialog
-const { BookingDialog } = require('./dialogs/bookingDialog');
-const BOOKING_DIALOG = 'bookingDialog';
-
+// the bot's dialog
 const { CaptureEvidenceDialog } = require('./dialogs/captureEvidenceDialog');
 const CAPTURE_EVIDENCE_DIALOG = 'captureEvidenceDialog';
 
@@ -92,14 +87,11 @@ const luisConfig = {
 const luisRecognizer = new IWitnessRecognizer(luisConfig);
 
 // Create the main dialog.
-const bookingDialog = new BookingDialog(BOOKING_DIALOG);
 const captureEvidenceDialog = new CaptureEvidenceDialog(CAPTURE_EVIDENCE_DIALOG);
 const emergencyDialog = new EmergencyDialog(EMERGENCY_DIALOG);
 const retrieveEvidenceDialog = new RetrieveEvidenceDialog(RETRIEVE_EVIDENCE_DIALOG);
 const mainMenuDialog = new MainMenuDialog(luisRecognizer, emergencyDialog, captureEvidenceDialog, retrieveEvidenceDialog);
 
-const dialog = new MainDialog(luisRecognizer, bookingDialog);
-const bot = new DialogAndWelcomeBot(conversationState, userState, mainMenuDialog);
 const twilioBot = new IWitnessBot(conversationState, userState, mainMenuDialog);
 
 // Create HTTP server
@@ -115,7 +107,7 @@ server.post('/api/messages', (req, res) => {
     // Route received a request to adapter for processing
     adapter.processActivity(req, res, async (turnContext) => {
         // route to bot activity handler.
-        await bot.run(turnContext);
+        await twilioBot.run(turnContext);
     });
 });
 
@@ -151,6 +143,6 @@ server.on('upgrade', (req, socket, head) => {
     streamingAdapter.useWebSocket(req, socket, head, async (context) => {
         // After connecting via WebSocket, run this logic for every request sent over
         // the WebSocket connection.
-        await bot.run(context);
+        await twilioBot.run(context);
     });
 });
