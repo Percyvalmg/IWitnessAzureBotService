@@ -98,7 +98,7 @@ const luisRecognizer = new IWitnessRecognizer(luisConfig);
 
 // Create the main dialog.
 const captureEvidenceDialog = new CaptureEvidenceDialog(CAPTURE_EVIDENCE_DIALOG, storage);
-const emergencyDialog = new EmergencyDialog(EMERGENCY_DIALOG);
+const emergencyDialog = new EmergencyDialog(EMERGENCY_DIALOG, luisRecognizer);
 const retrieveEvidenceDialog = new RetrieveEvidenceDialog(RETRIEVE_EVIDENCE_DIALOG);
 const mainMenuDialog = new MainMenuDialog(luisRecognizer, emergencyDialog, captureEvidenceDialog, retrieveEvidenceDialog);
 
