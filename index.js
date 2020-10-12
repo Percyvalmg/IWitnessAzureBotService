@@ -12,6 +12,8 @@ require('dotenv').config({ path: ENV_FILE });
 
 const restify = require('restify');
 
+const { CosmosDbPartitionedStorage } = require('botbuilder-azure');
+
 // Import required bot services.
 // See https://aka.ms/bot-services to learn more about the different parts of a bot.
 const { BotFrameworkAdapter, ConversationState, InputHints, MemoryStorage, UserState } = require('botbuilder');
@@ -37,6 +39,14 @@ const RETRIEVE_EVIDENCE_DIALOG = 'retrieveEvidenceDialog';
 const adapter = new BotFrameworkAdapter({
     appId: process.env.MicrosoftAppId,
     appPassword: process.env.MicrosoftAppPassword
+});
+
+const storage = new CosmosDbPartitionedStorage({
+    cosmosDbEndpoint: process.env.CosmosDbEndpoint,
+    authKey: process.env.CosmosDbAuthKey,
+    databaseId: process.env.CosmosDbDatabaseId,
+    containerId: process.env.CosmosDbContainerId,
+    compatibilityMode: false
 });
 
 // Catch-all for errors.
@@ -87,7 +97,7 @@ const luisConfig = {
 const luisRecognizer = new IWitnessRecognizer(luisConfig);
 
 // Create the main dialog.
-const captureEvidenceDialog = new CaptureEvidenceDialog(CAPTURE_EVIDENCE_DIALOG);
+const captureEvidenceDialog = new CaptureEvidenceDialog(CAPTURE_EVIDENCE_DIALOG, storage);
 const emergencyDialog = new EmergencyDialog(EMERGENCY_DIALOG);
 const retrieveEvidenceDialog = new RetrieveEvidenceDialog(RETRIEVE_EVIDENCE_DIALOG);
 const mainMenuDialog = new MainMenuDialog(luisRecognizer, emergencyDialog, captureEvidenceDialog, retrieveEvidenceDialog);

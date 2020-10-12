@@ -1,6 +1,7 @@
 const { ChoicePrompt, ConfirmPrompt, TextPrompt, WaterfallDialog, AttachmentPrompt } = require('botbuilder-dialogs');
 const { CancelAndHelpDialog } = require('./cancelAndHelpDialog');
 const { DateResolverDialog } = require('./dateResolverDialog');
+const { v4: uuidv4 } = require('uuid');
 
 const ATTACHMENT_PROMPT = 'ATTACHMENT_PROMPT';
 const CHOICE_PROMPT = 'CHOICE_PROMPT';
@@ -11,8 +12,9 @@ const DATE_RESOLVER_DIALOG = 'dateResolverDialog';
 const CAPTURE_EVIDENCE_WATERFALL_DIALOG = 'captureEvidenceWaterfallDialog';
 
 class CaptureEvidenceDialog extends CancelAndHelpDialog {
-    constructor(id) {
+    constructor(id, storage) {
         super(id || 'captureEvidenceDialog');
+        this.storage = storage;
         this.addDialog(new TextPrompt(TEXT_PROMPT))
             .addDialog(new ChoicePrompt(CHOICE_PROMPT))
             .addDialog(new ConfirmPrompt(CONFIRM_PROMPT))
@@ -22,6 +24,8 @@ class CaptureEvidenceDialog extends CancelAndHelpDialog {
             .addDialog(new WaterfallDialog(CAPTURE_EVIDENCE_WATERFALL_DIALOG, [
                 this.introStep.bind(this),
                 this.statementStep.bind(this),
+                this.termsAndConditionsStep.bind(this),
+                this.enterPasswordStep.bind(this),
                 this.captureStep.bind(this),
                 this.confirmStep.bind(this),
                 this.finalStep.bind(this)
@@ -43,13 +47,45 @@ class CaptureEvidenceDialog extends CancelAndHelpDialog {
         }
     }
 
-    async captureStep(stepContext) {
+    async termsAndConditionsStep(stepContext) {
         const statement = stepContext.options;
         statement.text = stepContext.result;
 
         const msg = statement.text === 'No statement given' ? 'No statement given' : `I have your statement as: \n\n "${ statement.text }".`;
-        // We can send messages to the user at any point in the WaterfallStep.
         await stepContext.context.sendActivity(msg);
+
+        const termsAndConditions = {
+            type: 'message',
+            text: 'In order for us to capture you data, you need to read and accept the terms and conditions in the attached image',
+            attachments: [
+                {
+                    contentType: 'image/png',
+                    contentUrl: 'https://docs.microsoft.com/en-us/bot-framework/media/how-it-works/architecture-resize.png'
+                }
+            ]
+        };
+
+        return await stepContext.prompt(CONFIRM_PROMPT, termsAndConditions, ['yes', 'no']);
+    }
+
+    async enterPasswordStep(stepContext) {
+        if (stepContext.result) {
+            const promptOptions = { prompt: 'Please enter a safe word that you will use to later retrieve your data' };
+            return await stepContext.prompt(TEXT_PROMPT, promptOptions);
+        }
+
+        return await stepContext.endDialog();
+    }
+
+    async captureStep(stepContext) {
+        const user = {
+            name: stepContext.parent.context.activity.from.id,
+            password: stepContext.result
+        };
+
+        await this.writeToDatabase({
+            [stepContext.parent.context.activity.from.id]: { user: user }
+        });
 
         const promptOptions = {
             prompt: 'Please attach evidence (or type any message to skip).',
@@ -74,10 +110,25 @@ class CaptureEvidenceDialog extends CancelAndHelpDialog {
         if (stepContext.result === true) {
             await stepContext.context.sendActivity('Your items have been captured');
             const statement = stepContext.options;
+            statement.id = stepContext.parent.context.activity.from.id;
+            const id = uuidv4();
+
+            await this.writeToDatabase({
+                [id]: { statement: statement }
+            });
+
             return await stepContext.endDialog(statement);
         }
 
         return await stepContext.endDialog();
+    }
+
+    async writeToDatabase(data) {
+        try {
+            await this.storage.write(data);
+        } catch (err) {
+            console.log('Error', err);
+        }
     }
 
     async evidencePromptValidator(promptContext) {
