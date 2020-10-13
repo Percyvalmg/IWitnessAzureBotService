@@ -3,6 +3,7 @@ const { CancelAndHelpDialog } = require('./cancelAndHelpDialog');
 const { DateResolverDialog } = require('./dateResolverDialog');
 const { LuisRecognizer } = require('botbuilder-ai');
 const { OtherHelpDialog } = require('./otherHelpDialog');
+const { CallPoliceDialog } = require('./callpoliceDialog');
 const { InputHints } = require('botbuilder');
 
 const CONFIRM_PROMPT = 'confirmPrompt';
@@ -18,6 +19,7 @@ class EmergencyDialog extends CancelAndHelpDialog {
             .addDialog(new ConfirmPrompt(CONFIRM_PROMPT))
             .addDialog(new DateResolverDialog(DATE_RESOLVER_DIALOG))
             .addDialog(new OtherHelpDialog('otherHelpDialog'))
+            .addDialog(new CallPoliceDialog('callpoliceDialog'))
             .addDialog(new WaterfallDialog(EMERGENCY_WATERFALL_DIALOG, [
                 this.introStep.bind(this),
                 this.actStep.bind(this),
@@ -39,7 +41,7 @@ class EmergencyDialog extends CancelAndHelpDialog {
         }
 
         case 'CallPolice': {
-            return await stepContext.context.sendActivity('This is the police section');
+            return await stepContext.beginDialog('callpoliceDialog');
         }
 
         default: {
