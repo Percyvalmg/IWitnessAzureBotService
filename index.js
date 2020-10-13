@@ -21,6 +21,7 @@ const { BotFrameworkAdapter, ConversationState, InputHints, MemoryStorage, UserS
 const { IWitnessRecognizer } = require('./dialogs/iWitnessRecognizer');
 
 // This bot's main dialog.
+const { StateManagementBot } = require('./state-management-bot/stateManagementBot');
 const { MainMenuDialog } = require('./dialogs/mainMenuDialog');
 const { IWitnessBot } = require('./bots/iwitnessBot');
 
