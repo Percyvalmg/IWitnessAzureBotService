@@ -10,22 +10,24 @@ const TEXT_PROMPT = 'TEXT_PROMPT';
 
 const DATE_RESOLVER_DIALOG = 'dateResolverDialog';
 const CAPTURE_EVIDENCE_WATERFALL_DIALOG = 'captureEvidenceWaterfallDialog';
+const AUTHENTICATION_DIALOG = 'AUTHENTICATION_DIALOG';
 
 class CaptureEvidenceDialog extends CancelAndHelpDialog {
-    constructor(id, storage) {
+    constructor(id, authenticationDialog, databaseService) {
         super(id || 'captureEvidenceDialog');
-        this.storage = storage;
+        this.databaseService = databaseService;
         this.addDialog(new TextPrompt(TEXT_PROMPT))
             .addDialog(new ChoicePrompt(CHOICE_PROMPT))
             .addDialog(new ConfirmPrompt(CONFIRM_PROMPT))
             .addDialog(new ConfirmPrompt(CONFIRM_PROMPT))
             .addDialog(new DateResolverDialog(DATE_RESOLVER_DIALOG))
             .addDialog(new AttachmentPrompt(ATTACHMENT_PROMPT, this.evidencePromptValidator))
+            .addDialog(authenticationDialog)
             .addDialog(new WaterfallDialog(CAPTURE_EVIDENCE_WATERFALL_DIALOG, [
                 this.introStep.bind(this),
                 this.statementStep.bind(this),
                 this.termsAndConditionsStep.bind(this),
-                this.enterPasswordStep.bind(this),
+                this.confirmTermsAndConditionsStep.bind(this),
                 this.captureStep.bind(this),
                 this.confirmStep.bind(this),
                 this.finalStep.bind(this)
@@ -68,29 +70,21 @@ class CaptureEvidenceDialog extends CancelAndHelpDialog {
         return await stepContext.prompt(CONFIRM_PROMPT, termsAndConditions, ['yes', 'no']);
     }
 
-    async enterPasswordStep(stepContext) {
+    async confirmTermsAndConditionsStep(stepContext) {
         if (stepContext.result) {
-            const promptOptions = { prompt: 'Please enter a safe word that you will use to later retrieve your data' };
-            return await stepContext.prompt(TEXT_PROMPT, promptOptions);
+            return await stepContext.beginDialog(AUTHENTICATION_DIALOG, stepContext.result);
         }
 
         return await stepContext.endDialog();
     }
 
     async captureStep(stepContext) {
-        const user = {
-            name: stepContext.parent.context.activity.from.id,
-            password: stepContext.result
-        };
-
-        await this.writeToDatabase({
-            [stepContext.parent.context.activity.from.id]: { user: user }
-        });
-
+        this.user = stepContext.result;
         const promptOptions = {
             prompt: 'Please attach evidence (or type any message to skip).',
             retryPrompt: 'The attachment must be a jpeg/png image file.'
         };
+
         return await stepContext.prompt(ATTACHMENT_PROMPT, promptOptions);
     }
 
@@ -112,23 +106,16 @@ class CaptureEvidenceDialog extends CancelAndHelpDialog {
             const statement = stepContext.options;
             statement.id = stepContext.parent.context.activity.from.id;
             const id = uuidv4();
-
-            await this.writeToDatabase({
-                [id]: { statement: statement }
+            this.user.statements.push(id);
+            await this.databaseService.writeToDatabase({
+                [id]: { statement: statement },
+                [stepContext.parent.context.activity.from.id]: { user: this.user }
             });
 
             return await stepContext.endDialog(statement);
         }
 
         return await stepContext.endDialog();
-    }
-
-    async writeToDatabase(data) {
-        try {
-            await this.storage.write(data);
-        } catch (err) {
-            console.log('Error', err);
-        }
     }
 
     async evidencePromptValidator(promptContext) {
