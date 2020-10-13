@@ -11,7 +11,7 @@ const MAIN_MENU_WATERFALL_DIALOG = 'mainMainWaterfallDialog';
 
 class MainMenuDialog extends CancelAndHelpDialog {
     constructor(luisRecognizer, emergencyDialog, captureEvidenceDialog, retrieveEvidenceDialog) {
-        super('MainDialog');
+        super(MAIN_MENU_WATERFALL_DIALOG);
 
         if (!luisRecognizer) throw new Error('[MainDialog]: Missing parameter \'luisRecognizer\' is required');
         this.luisRecognizer = luisRecognizer;
