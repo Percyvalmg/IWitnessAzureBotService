@@ -41,7 +41,7 @@ class EmergencyDialog extends CancelAndHelpDialog {
         }
 
         case 'CallPolice': {
-            return await stepContext.context.sendActivity('callpoliceDialog');
+            return await stepContext.beginDialog('callpoliceDialog');
         }
 
         default: {
