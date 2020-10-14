@@ -19,20 +19,27 @@ const { BotFrameworkAdapter, ConversationState, InputHints, MemoryStorage, UserS
 
 const { IWitnessRecognizer } = require('./dialogs/iWitnessRecognizer');
 const { DatabaseService } = require('./services/databaseService');
-// This bot's main dialog.
 const { MainMenuDialog } = require('./dialogs/mainMenuDialog');
 const { IWitnessBot } = require('./bots/iwitnessBot');
+const {
+    CAPTURE_EVIDENCE_DIALOG,
+    EMERGENCY_DIALOG,
+    RETRIEVE_EVIDENCE_DIALOG,
+    AUTHENTICATION_DIALOG,
+    CAPTURE_DIALOG,
+    OTHER_HELP_DIALOG,
+    CALL_POLICE_DIALOG,
+    CALL_POLICE_ON_BEHALF_OF_DIALOG
+} = require('./models/dialogIdConstants');
 
 const { CaptureEvidenceDialog } = require('./dialogs/captureEvidenceDialog');
-const CAPTURE_EVIDENCE_DIALOG = 'captureEvidenceDialog';
 const { EmergencyDialog } = require('./dialogs/emergencyDialog');
-const EMERGENCY_DIALOG = 'emergencyDialog';
 const { RetrieveEvidenceDialog } = require('./dialogs/retrieveEvidenceDialog');
-const RETRIEVE_EVIDENCE_DIALOG = 'retrieveEvidenceDialog';
 const { AuthenticationDialog } = require('./dialogs/authenticationDialog');
-const AUTHENTICATION_DIALOG = 'AUTHENTICATION_DIALOG';
+const { OtherHelpDialog } = require('./dialogs/otherHelpDialog');
 const { CaptureDialog } = require('./dialogs/captureDialog');
-const CAPTURE_WATERFALL_DIALOG = 'CAPTURE_WATERFALL_DIALOG';
+const { CallPoliceDialog } = require('./dialogs/callPoliceDialog');
+const { CallPoliceOnBehalfOfDialog } = require('./dialogs/callPoliceOnBehalfOfDialog');
 
 // Create adapter.
 // See https://aka.ms/about-bot-adapter to learn more about adapters.
@@ -97,12 +104,15 @@ const luisConfig = {
 const luisRecognizer = new IWitnessRecognizer(luisConfig);
 const databaseService = new DatabaseService(storage);
 // Create all the dialogs
-const captureDialog = new CaptureDialog(CAPTURE_WATERFALL_DIALOG);
+const callPoliceOnBehalfOfDialog = new CallPoliceOnBehalfOfDialog(CALL_POLICE_ON_BEHALF_OF_DIALOG);
+const callPoliceDialog = new CallPoliceDialog(CALL_POLICE_DIALOG, callPoliceOnBehalfOfDialog);
 const authenticationDialog = new AuthenticationDialog(AUTHENTICATION_DIALOG, databaseService);
+const otherHelpDialog = new OtherHelpDialog(OTHER_HELP_DIALOG);
+const captureDialog = new CaptureDialog(CAPTURE_DIALOG);
 const captureEvidenceDialog = new CaptureEvidenceDialog(CAPTURE_EVIDENCE_DIALOG, authenticationDialog, captureDialog, databaseService);
-const emergencyDialog = new EmergencyDialog(EMERGENCY_DIALOG, luisRecognizer);
+const emergencyDialog = new EmergencyDialog(EMERGENCY_DIALOG, luisRecognizer, otherHelpDialog, callPoliceDialog);
 const retrieveEvidenceDialog = new RetrieveEvidenceDialog(RETRIEVE_EVIDENCE_DIALOG);
-const mainMenuDialog = new MainMenuDialog(luisRecognizer, emergencyDialog, captureEvidenceDialog, retrieveEvidenceDialog);
+const mainMenuDialog = new MainMenuDialog(luisRecognizer, emergencyDialog, captureEvidenceDialog, retrieveEvidenceDialog, callPoliceDialog);
 
 const twilioBot = new IWitnessBot(conversationState, userState, mainMenuDialog);
 

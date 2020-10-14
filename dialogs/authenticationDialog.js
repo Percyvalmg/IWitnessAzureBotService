@@ -1,21 +1,20 @@
 const { TextPrompt, WaterfallDialog } = require('botbuilder-dialogs');
 const { CancelAndHelpDialog } = require('./cancelAndHelpDialog');
 const { User } = require('../models/user');
-
-const TEXT_PROMPT = 'textPrompt';
-const AUTHENTICATION_DIALOG = 'AUTHENTICATION_DIALOG';
+const { TEXT_PROMPT, AUTHENTICATION_DIALOG } = require('../models/dialogIdConstants');
+const AUTHENTICATION_WATERFALL_DIALOG = 'AUTHENTICATION_WATERFALL_DIALOG';
 
 class AuthenticationDialog extends CancelAndHelpDialog {
     constructor(id, databaseService) {
-        super(id || 'AUTHENTICATION_DIALOG');
+        super(id || AUTHENTICATION_DIALOG);
         this.databaseService = databaseService;
         this.addDialog(new TextPrompt(TEXT_PROMPT))
-            .addDialog(new WaterfallDialog(AUTHENTICATION_DIALOG, [
+            .addDialog(new WaterfallDialog(AUTHENTICATION_WATERFALL_DIALOG, [
                 this.enterPasswordStep.bind(this),
                 this.finalStep.bind(this)
             ]));
 
-        this.initialDialogId = AUTHENTICATION_DIALOG;
+        this.initialDialogId = AUTHENTICATION_WATERFALL_DIALOG;
     }
 
     async enterPasswordStep(stepContext) {
