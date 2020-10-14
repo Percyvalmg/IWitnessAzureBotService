@@ -1,14 +1,11 @@
 const { ConfirmPrompt, TextPrompt, WaterfallDialog, AttachmentPrompt } = require('botbuilder-dialogs');
 const { CancelAndHelpDialog } = require('./cancelAndHelpDialog');
-
-const CONFIRM_PROMPT = 'confirmPrompt';
-const TEXT_PROMPT = 'textPrompt';
+const { CONFIRM_PROMPT, TEXT_PROMPT, ATTACHMENT_PROMPT, CAPTURE_DIALOG } = require('../models/dialogIdConstants');
 const CAPTURE_WATERFALL_DIALOG = 'CAPTURE_WATERFALL_DIALOG';
-const ATTACHMENT_PROMPT = 'ATTACHMENT_PROMPT';
 
 class CaptureDialog extends CancelAndHelpDialog {
     constructor(id) {
-        super(id || 'CAPTURE_WATERFALL_DIALOG');
+        super(id || CAPTURE_DIALOG);
         this.evidence = [];
         this.addDialog(new TextPrompt(TEXT_PROMPT))
             .addDialog(new ConfirmPrompt(CONFIRM_PROMPT))
@@ -56,7 +53,7 @@ class CaptureDialog extends CancelAndHelpDialog {
             'audio/vnd.wave', 'audio/3gpp', 'audio/3gpp2', 'audio/ac3', 'audio/vnd.wave', 'audio/webm',
             'audio/amr-nb', 'audio/amr', 'video/mpeg', 'video/mp4', 'video/quicktime', 'video/webm',
             'video/3gpp', 'video/3gpp2', 'video/3gpp-tt', 'video/H261', 'video/H263', 'video/H263-1998',
-            'video/H263-2000', 'video/H264'
+            'video/H263-2000', 'video/H264', 'application/json'
         ];
 
         if (promptContext.recognized.succeeded) {

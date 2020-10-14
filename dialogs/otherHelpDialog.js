@@ -1,20 +1,15 @@
 const { InputHints } = require('botbuilder');
 const { ConfirmPrompt, TextPrompt, WaterfallDialog } = require('botbuilder-dialogs');
 const { CancelAndHelpDialog } = require('./cancelAndHelpDialog');
-const { DateResolverDialog } = require('./dateResolverDialog');
-
-const CONFIRM_PROMPT = 'confirmPrompt';
-const DATE_RESOLVER_DIALOG = 'dateResolverDialog';
-const TEXT_PROMPT = 'textPrompt';
-const OTHER_HELP_WATERFALL_DIALOG = 'otherHelpWaterfallDialog';
+const { CONFIRM_PROMPT, TEXT_PROMPT, OTHER_HELP_DIALOG } = require('../models/dialogIdConstants');
+const OTHER_HELP_WATERFALL_DIALOG = 'OTHER_HELP_WATERFALL_DIALOG';
 
 class OtherHelpDialog extends CancelAndHelpDialog {
     constructor(id) {
-        super(id || 'otherHelpDialog');
+        super(id || OTHER_HELP_DIALOG);
 
         this.addDialog(new TextPrompt(TEXT_PROMPT))
             .addDialog(new ConfirmPrompt(CONFIRM_PROMPT))
-            .addDialog(new DateResolverDialog(DATE_RESOLVER_DIALOG))
             .addDialog(new WaterfallDialog(OTHER_HELP_WATERFALL_DIALOG, [
                 this.introStep.bind(this),
                 this.finalStep.bind(this)

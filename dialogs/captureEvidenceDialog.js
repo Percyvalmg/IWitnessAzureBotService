@@ -1,21 +1,15 @@
-const { ChoicePrompt, ConfirmPrompt, TextPrompt, WaterfallDialog } = require('botbuilder-dialogs');
+const { ConfirmPrompt, TextPrompt, WaterfallDialog } = require('botbuilder-dialogs');
 const { CancelAndHelpDialog } = require('./cancelAndHelpDialog');
 const { v4: uuidv4 } = require('uuid');
-
-const CHOICE_PROMPT = 'CHOICE_PROMPT';
-const CONFIRM_PROMPT = 'CONFIRM_PROMPT';
-const TEXT_PROMPT = 'TEXT_PROMPT';
+const { CONFIRM_PROMPT, TEXT_PROMPT, AUTHENTICATION_DIALOG, CAPTURE_DIALOG, CAPTURE_EVIDENCE_DIALOG } = require('../models/dialogIdConstants');
 
 const CAPTURE_EVIDENCE_WATERFALL_DIALOG = 'CAPTURE_EVIDENCE_WATERFALL_DIALOG';
-const AUTHENTICATION_DIALOG = 'AUTHENTICATION_DIALOG';
-const CAPTURE_WATERFALL_DIALOG = 'CAPTURE_WATERFALL_DIALOG';
 
 class CaptureEvidenceDialog extends CancelAndHelpDialog {
     constructor(id, authenticationDialog, captureDialog, databaseService) {
-        super(id || 'captureEvidenceDialog');
+        super(id || CAPTURE_EVIDENCE_DIALOG);
         this.databaseService = databaseService;
         this.addDialog(new TextPrompt(TEXT_PROMPT))
-            .addDialog(new ChoicePrompt(CHOICE_PROMPT))
             .addDialog(new ConfirmPrompt(CONFIRM_PROMPT))
             .addDialog(authenticationDialog)
             .addDialog(captureDialog)
@@ -76,7 +70,7 @@ class CaptureEvidenceDialog extends CancelAndHelpDialog {
 
     async captureStep(stepContext) {
         this.user = stepContext.result;
-        return await stepContext.beginDialog(CAPTURE_WATERFALL_DIALOG);
+        return await stepContext.beginDialog(CAPTURE_DIALOG);
     }
 
     async confirmStep(stepContext) {
@@ -84,7 +78,7 @@ class CaptureEvidenceDialog extends CancelAndHelpDialog {
         statement.evidence = stepContext.result;
 
         if (statement.evidence) {
-            const messageText = `Thank you we have received ${ statement.evidence.length } items. \n\nShould we continue to store them?`;
+            const messageText = `Thank you we have received ${ statement.evidence.length } item(s). \n\nShould we continue to store them?`;
             return await stepContext.prompt(CONFIRM_PROMPT, messageText);
         } else {
             return await stepContext.next();

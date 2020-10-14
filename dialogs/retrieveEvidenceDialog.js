@@ -1,26 +1,21 @@
 const { InputHints } = require('botbuilder');
 const { ConfirmPrompt, TextPrompt, WaterfallDialog } = require('botbuilder-dialogs');
 const { CancelAndHelpDialog } = require('./cancelAndHelpDialog');
-const { DateResolverDialog } = require('./dateResolverDialog');
-
-const CONFIRM_PROMPT = 'confirmPrompt';
-const DATE_RESOLVER_DIALOG = 'dateResolverDialog';
-const TEXT_PROMPT = 'textPrompt';
-const WATERFALL_DIALOG = 'waterfallDialog';
+const { CONFIRM_PROMPT, TEXT_PROMPT, RETRIEVE_EVIDENCE_DIALOG } = require('../models/dialogIdConstants');
+const RETRIEVE_EVIDENCE_WATERFALL_DIALOG = 'RETRIEVE_EVIDENCE_WATERFALL_DIALOG';
 
 class RetrieveEvidenceDialog extends CancelAndHelpDialog {
     constructor(id) {
-        super(id || 'retrieveEvidenceDialog');
+        super(id || RETRIEVE_EVIDENCE_DIALOG);
 
         this.addDialog(new TextPrompt(TEXT_PROMPT))
             .addDialog(new ConfirmPrompt(CONFIRM_PROMPT))
-            .addDialog(new DateResolverDialog(DATE_RESOLVER_DIALOG))
-            .addDialog(new WaterfallDialog(WATERFALL_DIALOG, [
+            .addDialog(new WaterfallDialog(RETRIEVE_EVIDENCE_WATERFALL_DIALOG, [
                 this.introStep.bind(this),
                 this.finalStep.bind(this)
             ]));
 
-        this.initialDialogId = WATERFALL_DIALOG;
+        this.initialDialogId = RETRIEVE_EVIDENCE_WATERFALL_DIALOG;
     }
 
     async introStep(stepContext) {
