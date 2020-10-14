@@ -90,6 +90,8 @@ class CaptureEvidenceDialog extends CancelAndHelpDialog {
             await stepContext.context.sendActivity('Your items have been captured');
             const statement = stepContext.options;
             statement.id = stepContext.parent.context.activity.from.id;
+            statement.date = Date.now();
+
             const id = uuidv4();
             this.user.statements.push(id);
             await this.databaseService.writeToDatabase({
