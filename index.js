@@ -31,6 +31,8 @@ const { RetrieveEvidenceDialog } = require('./dialogs/retrieveEvidenceDialog');
 const RETRIEVE_EVIDENCE_DIALOG = 'retrieveEvidenceDialog';
 const { AuthenticationDialog } = require('./dialogs/authenticationDialog');
 const AUTHENTICATION_DIALOG = 'AUTHENTICATION_DIALOG';
+const { CaptureDialog } = require('./dialogs/captureDialog');
+const CAPTURE_WATERFALL_DIALOG = 'CAPTURE_WATERFALL_DIALOG';
 
 // Create adapter.
 // See https://aka.ms/about-bot-adapter to learn more about adapters.
@@ -95,8 +97,9 @@ const luisConfig = {
 const luisRecognizer = new IWitnessRecognizer(luisConfig);
 const databaseService = new DatabaseService(storage);
 // Create all the dialogs
+const captureDialog = new CaptureDialog(CAPTURE_WATERFALL_DIALOG);
 const authenticationDialog = new AuthenticationDialog(AUTHENTICATION_DIALOG, databaseService);
-const captureEvidenceDialog = new CaptureEvidenceDialog(CAPTURE_EVIDENCE_DIALOG, authenticationDialog, databaseService);
+const captureEvidenceDialog = new CaptureEvidenceDialog(CAPTURE_EVIDENCE_DIALOG, authenticationDialog, captureDialog, databaseService);
 const emergencyDialog = new EmergencyDialog(EMERGENCY_DIALOG, luisRecognizer);
 const retrieveEvidenceDialog = new RetrieveEvidenceDialog(RETRIEVE_EVIDENCE_DIALOG);
 const mainMenuDialog = new MainMenuDialog(luisRecognizer, emergencyDialog, captureEvidenceDialog, retrieveEvidenceDialog);
