@@ -13,26 +13,26 @@ require('dotenv').config({ path: ENV_FILE });
 const restify = require('restify');
 
 const { CosmosDbPartitionedStorage } = require('botbuilder-azure');
-
 // Import required bot services.
 // See https://aka.ms/bot-services to learn more about the different parts of a bot.
 const { BotFrameworkAdapter, ConversationState, InputHints, MemoryStorage, UserState } = require('botbuilder');
 
 const { IWitnessRecognizer } = require('./dialogs/iWitnessRecognizer');
-
+const { DatabaseService } = require('./services/databaseService');
 // This bot's main dialog.
 const { MainMenuDialog } = require('./dialogs/mainMenuDialog');
 const { IWitnessBot } = require('./bots/iwitnessBot');
 
-// the bot's dialog
 const { CaptureEvidenceDialog } = require('./dialogs/captureEvidenceDialog');
 const CAPTURE_EVIDENCE_DIALOG = 'captureEvidenceDialog';
-
 const { EmergencyDialog } = require('./dialogs/emergencyDialog');
 const EMERGENCY_DIALOG = 'emergencyDialog';
-
 const { RetrieveEvidenceDialog } = require('./dialogs/retrieveEvidenceDialog');
 const RETRIEVE_EVIDENCE_DIALOG = 'retrieveEvidenceDialog';
+const { AuthenticationDialog } = require('./dialogs/authenticationDialog');
+const AUTHENTICATION_DIALOG = 'AUTHENTICATION_DIALOG';
+const { CaptureDialog } = require('./dialogs/captureDialog');
+const CAPTURE_WATERFALL_DIALOG = 'CAPTURE_WATERFALL_DIALOG';
 
 // Create adapter.
 // See https://aka.ms/about-bot-adapter to learn more about adapters.
@@ -95,9 +95,11 @@ const luisConfig = {
 };
 
 const luisRecognizer = new IWitnessRecognizer(luisConfig);
-
-// Create the main dialog.
-const captureEvidenceDialog = new CaptureEvidenceDialog(CAPTURE_EVIDENCE_DIALOG, storage);
+const databaseService = new DatabaseService(storage);
+// Create all the dialogs
+const captureDialog = new CaptureDialog(CAPTURE_WATERFALL_DIALOG);
+const authenticationDialog = new AuthenticationDialog(AUTHENTICATION_DIALOG, databaseService);
+const captureEvidenceDialog = new CaptureEvidenceDialog(CAPTURE_EVIDENCE_DIALOG, authenticationDialog, captureDialog, databaseService);
 const emergencyDialog = new EmergencyDialog(EMERGENCY_DIALOG, luisRecognizer);
 const retrieveEvidenceDialog = new RetrieveEvidenceDialog(RETRIEVE_EVIDENCE_DIALOG);
 const mainMenuDialog = new MainMenuDialog(luisRecognizer, emergencyDialog, captureEvidenceDialog, retrieveEvidenceDialog);
