@@ -14,7 +14,7 @@ class CallPoliceOnBehalfOfDialog extends CancelAndHelpDialog {
 
         this.addDialog(new TextPrompt(TEXT_PROMPT))
             .addDialog(new ConfirmPrompt(CONFIRM_PROMPT))
-            .addDialog(new AttachmentPrompt(ATTACHMENT_PROMPT))
+            .addDialog(new AttachmentPrompt(ATTACHMENT_PROMPT, this.locationPromptValidator))
             .addDialog(new WaterfallDialog(CALL_POLICE_ON_BEHALF_OF_WATERFALL_DIALOG, [
                 this.getLocationStep.bind(this),
                 this.getNameAndSurname.bind(this),
@@ -38,8 +38,7 @@ class CallPoliceOnBehalfOfDialog extends CancelAndHelpDialog {
 
     async getNameAndSurname(stepContext) {
         const user = stepContext.options;
-        console.log('user', user);
-        user.location = await this.getLocation(stepContext);
+        user.location = stepContext.result;
         if (!user.location) {
             await stepContext.context.sendActivity('The item you sent us was not a location.');
             return await stepContext.replaceDialog(CALL_POLICE_ON_BEHALF_OF_WATERFALL_DIALOG);
@@ -72,19 +71,24 @@ class CallPoliceOnBehalfOfDialog extends CancelAndHelpDialog {
         return await stepContext.endDialog(user);
     }
 
-    async getLocation(stepContext) {
-        console.log('stepContext', stepContext);
-        if (stepContext.parent.context.activity.attachments && stepContext.parent.context.activity.attachments.length > 0) {
-            for (const attachment of stepContext.parent.context.activity.attachments) {
-                if (attachment.contentType === 'application/json' && attachment.content.type === 'GeoCoordinates') {
-                    await stepContext.sendActivity('Received a location' +
-                        `${ attachment.name } (${ attachment.content.name }) (${ attachment.content.latitude },${ attachment.content.longitude })`);
-                    return attachment.content;
-                }
-            }
-        }
+    async locationPromptValidator(promptContext) {
+        const supportedContentTypes = ['application/json'];
+        if (promptContext.recognized.succeeded) {
+            const attachments = promptContext.recognized.value;
+            const validLocation = [];
 
-        return false;
+            attachments.forEach(attachment => {
+                if (supportedContentTypes.includes(attachment.contentType)) {
+                    validLocation.push(attachment);
+                }
+            });
+
+            promptContext.recognized.value = validLocation;
+            return !!validLocation.length;
+        } else {
+            await promptContext.context.sendActivity('Please send appropriate location...');
+            return false;
+        }
     }
 }
 
