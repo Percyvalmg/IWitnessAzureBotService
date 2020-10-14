@@ -56,7 +56,7 @@ class CaptureDialog extends CancelAndHelpDialog {
             'audio/vnd.wave', 'audio/3gpp', 'audio/3gpp2', 'audio/ac3', 'audio/vnd.wave', 'audio/webm',
             'audio/amr-nb', 'audio/amr', 'video/mpeg', 'video/mp4', 'video/quicktime', 'video/webm',
             'video/3gpp', 'video/3gpp2', 'video/3gpp-tt', 'video/H261', 'video/H263', 'video/H263-1998',
-            'video/H263-2000', 'video/H264'
+            'video/H263-2000', 'video/H264', 'application/json'
         ];
 
         if (promptContext.recognized.succeeded) {
