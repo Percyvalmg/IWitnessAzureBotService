@@ -24,31 +24,20 @@ class CallPoliceDialog extends CancelAndHelpDialog {
         this.initialDialogId = CALLPOLICE_WATERFALL_DIALOG;
     }
 
+
     async introStep(stepContext) {
-        return await stepContext.prompt(TEXT_PROMPT,'Police are on the Way\n'+'1. Call the police on your behalf\n'+'2. I will call the police\n');
+        return await stepContext.prompt(CONFIRM_PROMPT,'Police are on the Way\n'+'1. Call the police on your behalf\n'+'2. I will call the police\n',['1','2']);
     }
 
-    async actStep(stepContext) {
-        const luisResult = await this.luisRecognizer.executeLuisQuery(stepContext.context);
-        switch (LuisRecognizer.topIntent(luisResult)) {
-        case '1': {
-
-            return await stepContext.context.sendActivity('Police are on the way');
+    async actStep(stepContext){
+        if (stepContext.result) {
+            const promptOptions = { prompt: 'Police are on the way' };
+            return await stepContext.prompt(TEXT_PROMPT, promptOptions);
+        } else {
+            return await stepContext.next('Call the police on 10111');
         }
-
-        case '2': {
-            return await stepContext.context.sendActivity('you can call the police on 10111');
-        }
-
-        default: {
-            const didntUnderstandMessageText = `Sorry, I didn't get that. Please try asking in a different way (intent was ${ LuisRecognizer.topIntent(luisResult) })\n
-             \n\n The IWitness Team is currently working on making me better`;
-            await stepContext.context.sendActivity(didntUnderstandMessageText, didntUnderstandMessageText, InputHints.IgnoringInput);
-        }
-        }
-
-        return await stepContext.next();
     }
+
 
     async finalStep(stepContext) {
         return await stepContext.endDialog();
