@@ -19,7 +19,6 @@ class RetrieveEvidenceDialog extends CancelAndHelpDialog {
         this.audio = [];
         this.text = [];
         
-
         this.addDialog(new TextPrompt(TEXT_PROMPT))
             .addDialog(new ConfirmPrompt(CONFIRM_PROMPT))
             .addDialog(new DateResolverDialog(DATE_RESOLVER_DIALOG))
@@ -36,13 +35,12 @@ class RetrieveEvidenceDialog extends CancelAndHelpDialog {
     }
 
     async initializeUserEvidence(stepContext){
-        // this.userID = "whatsapp:+27618492168";
         const userID = stepContext.parent.context.activity.from.id
         const user =  await this.dbServices.getUser(userID)
         if(!user) {
            return stepContext.context.sendActivity('We do not have any evidence for you');
         }
-        const statementIDs = user[this.userID].user.statements;
+        const statementIDs = user.statements;
         let index = 0;
 
         for(const statementIDIndex in statementIDs){
@@ -59,10 +57,8 @@ class RetrieveEvidenceDialog extends CancelAndHelpDialog {
                     this.evidence[index] = evidenceData;
                     index++;
                 }
-               
             }
         }
-
     }
 
     async categorizeEvidence(){
@@ -71,6 +67,7 @@ class RetrieveEvidenceDialog extends CancelAndHelpDialog {
         let videosIndex = 0;
         let audioIndex = 0;
         let textIndex = 0;
+
         for(index in this.evidence) {
             if(this.evidence[index].contentType.search('image') != -1 ){
                 this.images[imageIndex] = this.evidence[index];
@@ -97,14 +94,12 @@ class RetrieveEvidenceDialog extends CancelAndHelpDialog {
         if (stepContext.result) {
             return await stepContext.beginDialog(AUTHENTICATION_DIALOG, stepContext.result);
         }
-
         return await stepContext.endDialog();
     }
 
     async showAllStoredEvidence(stepContext) {
         const COUNT_TEXT = "You have "  + this.images.length  + " Photos" + ", " + this.videos.length +  " Videos" + ", " + this.audio.length + " Audio" + ", " + this.text.length + " Locations"  + " data save!";
         if (stepContext.result && this.evidence.length > 0) {
-            let index = 0;
             const reply = {
                 type: 'message',
                 text: COUNT_TEXT,
