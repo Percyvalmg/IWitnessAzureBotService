@@ -25,6 +25,7 @@ class RetrieveEvidenceDialog extends CancelAndHelpDialog {
             .addDialog(authenticationDialog)
             .addDialog(new WaterfallDialog(WATERFALL_DIALOG, [
                 this.initializeUserEvidence.bind(this),
+                this.categorizeEvidence.bind(this),
                 this.introStep.bind(this),
                 this.authStep.bind(this),
                 this.showAllStoredEvidence.bind(this),
@@ -35,7 +36,7 @@ class RetrieveEvidenceDialog extends CancelAndHelpDialog {
     }
 
     async initializeUserEvidence(stepContext){
-        const userID = stepContext.parent.context.activity.from.id
+        const userID = await stepContext.parent.context.activity.from.id
         const user =  await this.dbServices.getUser(userID)
         if(!user) {
            return stepContext.context.sendActivity('We do not have any evidence for you');
@@ -46,7 +47,8 @@ class RetrieveEvidenceDialog extends CancelAndHelpDialog {
         for(const statementIDIndex in statementIDs){
             const currentStatementID = statementIDs[statementIDIndex];
             const statementData =  await this.dbServices.readFromDatabase([currentStatementID]);
-            const currentObject =  statementData[currentStatementID]
+            const currentObject =  statementData[currentStatementID];
+            const timestamp = currentObject.statement.date;
             
             for(const evidenceIndex in currentObject.statement.evidence){
                 const currentEvidenceID = statementIDs[evidenceIndex];
@@ -54,14 +56,16 @@ class RetrieveEvidenceDialog extends CancelAndHelpDialog {
 
                 for(const evidenceForStatementIndex in evidenceArray[currentEvidenceID].statement.evidence){
                     const evidenceData = evidenceArray[currentEvidenceID].statement.evidence[evidenceForStatementIndex];
-                    this.evidence[index] = evidenceData;
+                    this.evidence[index] = { ...evidenceData, timestamp};
                     index++;
                 }
             }
         }
+        console.log(this.evidence)
+        return await stepContext.next();
     }
 
-    async categorizeEvidence(){
+    async categorizeEvidence(stepContext){
         let index = 0;
         let imageIndex = 0;
         let videosIndex = 0;
@@ -83,10 +87,10 @@ class RetrieveEvidenceDialog extends CancelAndHelpDialog {
                 textIndex++
             }
         }
+        return await stepContext.next();
     }
 
     async introStep(stepContext) {
-        await this.categorizeEvidence()
         return await stepContext.prompt(CONFIRM_PROMPT, 'Do you want to retrieve all your evidence?\n\n', ['yes', 'no']);
     }
 
@@ -98,16 +102,21 @@ class RetrieveEvidenceDialog extends CancelAndHelpDialog {
     }
 
     async showAllStoredEvidence(stepContext) {
-        const COUNT_TEXT = "You have "  + this.images.length  + " Photos" + ", " + this.videos.length +  " Videos" + ", " + this.audio.length + " Audio" + ", " + this.text.length + " Locations"  + " data save!";
+        const sortedEvidence = this.evidence.sort(function (a, b) {
+            return a.timestamp < b.timestamp;
+          });
+        const COUNT_TEXT = "You have "  + this.images.length  + " Photos" + ", " + this.videos.length +  " Videos" +  ", " + this.audio.length + " Audios" + ", " + this.text.length + " Locations" + " data save!";
+        await stepContext.context.sendActivity(COUNT_TEXT);
         if (stepContext.result && this.evidence.length > 0) {
-            const reply = {
-                type: 'message',
-                text: COUNT_TEXT,
-                attachments: this.evidence
-            };
+            sortedEvidence.forEach(async value => {
+                const reply = {
+                    type: 'message',
+                    text: Date(value.timestamp),
+                    attachments: [value]
+                };
 
-            await stepContext.context.sendActivity(reply);
-
+                await stepContext.context.sendActivity(reply);
+            })
             return await stepContext.endDialog();
         } else {
             stepContext.context.sendActivity('No evidence found');
