@@ -82,9 +82,6 @@ class RetrieveEvidenceDialog extends CancelAndHelpDialog {
                 textIndex++
             }
         }
-
-        console.log(this.images)
-
     }
 
     async introStep(stepContext) {
@@ -103,7 +100,7 @@ class RetrieveEvidenceDialog extends CancelAndHelpDialog {
 
     async showAllStoredEvidence(stepContext) {
         const id = stepContext.parent.context.activity.from.id
-        if (stepContext.result && this.evidenceArr.length > 0) {
+        if (stepContext.result && this.evidence.length > 0) {
             let promptText = "";
             let index = 0;
             this.evidenceArr.map(obj => {

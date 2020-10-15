@@ -1,23 +1,18 @@
 const { ConfirmPrompt, TextPrompt, WaterfallDialog } = require('botbuilder-dialogs');
 const { CancelAndHelpDialog } = require('./cancelAndHelpDialog');
-const { DateResolverDialog } = require('./dateResolverDialog');
 const { LuisRecognizer } = require('botbuilder-ai');
-const { OtherHelpDialog } = require('./otherHelpDialog');
 const { InputHints } = require('botbuilder');
-
-const CONFIRM_PROMPT = 'confirmPrompt';
-const DATE_RESOLVER_DIALOG = 'dateResolverDialog';
-const TEXT_PROMPT = 'textPrompt';
-const EMERGENCY_WATERFALL_DIALOG = 'emergencyWaterfallDialog';
+const { CONFIRM_PROMPT, TEXT_PROMPT, OTHER_HELP_DIALOG, CALL_POLICE_DIALOG } = require('../models/dialogIdConstants');
+const EMERGENCY_WATERFALL_DIALOG = 'EMERGENCY_WATERFALL_DIALOG';
 
 class EmergencyDialog extends CancelAndHelpDialog {
-    constructor(id, luisRecognizer) {
-        super(id || 'emergencyDialog');
+    constructor(id, luisRecognizer, otherHelpDialog, callPoliceDialog) {
+        super(id || 'EMERGENCY_DIALOG');
         this.luisRecognizer = luisRecognizer;
         this.addDialog(new TextPrompt(TEXT_PROMPT))
             .addDialog(new ConfirmPrompt(CONFIRM_PROMPT))
-            .addDialog(new DateResolverDialog(DATE_RESOLVER_DIALOG))
-            .addDialog(new OtherHelpDialog('otherHelpDialog'))
+            .addDialog(otherHelpDialog)
+            .addDialog(callPoliceDialog)
             .addDialog(new WaterfallDialog(EMERGENCY_WATERFALL_DIALOG, [
                 this.introStep.bind(this),
                 this.actStep.bind(this),
@@ -35,11 +30,11 @@ class EmergencyDialog extends CancelAndHelpDialog {
         const luisResult = await this.luisRecognizer.executeLuisQuery(stepContext.context);
         switch (LuisRecognizer.topIntent(luisResult)) {
         case 'OtherHelp': {
-            return await stepContext.beginDialog('otherHelpDialog');
+            return await stepContext.beginDialog(OTHER_HELP_DIALOG);
         }
 
         case 'CallPolice': {
-            return await stepContext.context.sendActivity('This is the police section');
+            return await stepContext.beginDialog(CALL_POLICE_DIALOG);
         }
 
         default: {
@@ -53,7 +48,7 @@ class EmergencyDialog extends CancelAndHelpDialog {
     }
 
     async finalStep(stepContext) {
-        return await stepContext.endDialog();
+        return await stepContext.endDialog(stepContext.result);
     }
 }
 
