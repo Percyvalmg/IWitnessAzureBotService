@@ -111,15 +111,9 @@ const authenticationDialog = new AuthenticationDialog(AUTHENTICATION_DIALOG, dat
 const otherHelpDialog = new OtherHelpDialog(OTHER_HELP_DIALOG);
 const captureDialog = new CaptureDialog(CAPTURE_DIALOG);
 const captureEvidenceDialog = new CaptureEvidenceDialog(CAPTURE_EVIDENCE_DIALOG, authenticationDialog, captureDialog, databaseService);
-<<<<<<< HEAD
-const emergencyDialog = new EmergencyDialog(EMERGENCY_DIALOG, luisRecognizer);
-const retrieveEvidenceDialog = new RetrieveEvidenceDialog(RETRIEVE_EVIDENCE_DIALOG, databaseService, authenticationDialog, userID);
-const mainMenuDialog = new MainMenuDialog(luisRecognizer, emergencyDialog, captureEvidenceDialog, retrieveEvidenceDialog);
-=======
 const emergencyDialog = new EmergencyDialog(EMERGENCY_DIALOG, luisRecognizer, otherHelpDialog, callPoliceDialog);
-const retrieveEvidenceDialog = new RetrieveEvidenceDialog(RETRIEVE_EVIDENCE_DIALOG);
+const retrieveEvidenceDialog = new RetrieveEvidenceDialog(RETRIEVE_EVIDENCE_DIALOG,authenticationDialog, databaseService);
 const mainMenuDialog = new MainMenuDialog(luisRecognizer, emergencyDialog, captureEvidenceDialog, retrieveEvidenceDialog, callPoliceDialog);
->>>>>>> master
 
 const twilioBot = new IWitnessBot(conversationState, userState, mainMenuDialog);
 

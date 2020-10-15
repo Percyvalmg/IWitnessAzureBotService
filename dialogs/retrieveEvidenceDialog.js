@@ -1,4 +1,4 @@
-const { InputHints } = require('botbuilder');
+const { InputHints, builder } = require('botbuilder');
 const { ConfirmPrompt, TextPrompt, WaterfallDialog } = require('botbuilder-dialogs');
 const { CancelAndHelpDialog } = require('./cancelAndHelpDialog');
 const { DateResolverDialog } = require('./dateResolverDialog');
@@ -10,7 +10,7 @@ const WATERFALL_DIALOG = 'waterfallDialog';
 const AUTHENTICATION_DIALOG = 'AUTHENTICATION_DIALOG';
 
 class RetrieveEvidenceDialog extends CancelAndHelpDialog {
-    constructor(id, databaseServices, authenticationDialog) {
+    constructor(id, authenticationDialog, databaseServices) {
         super(id || 'retrieveEvidenceDialog');
         this.dbServices = databaseServices;
         this.evidence = [];
@@ -25,19 +25,23 @@ class RetrieveEvidenceDialog extends CancelAndHelpDialog {
             .addDialog(new DateResolverDialog(DATE_RESOLVER_DIALOG))
             .addDialog(authenticationDialog)
             .addDialog(new WaterfallDialog(WATERFALL_DIALOG, [
+                this.initializeUserEvidence.bind(this),
                 this.introStep.bind(this),
-                // this.authStep.bind(this),
+                this.authStep.bind(this),
                 this.showAllStoredEvidence.bind(this),
-                // this.retrieveSelectedEvidence.bind(this),
                 this.finalStep.bind(this)
             ]));
 
         this.initialDialogId = WATERFALL_DIALOG;
     }
 
-    async populateEvidence(){
-        this.userID = "whatsapp:+27618492168";
-        const user =  await this.dbServices.readFromDatabase([this.userID]);
+    async initializeUserEvidence(stepContext){
+        // this.userID = "whatsapp:+27618492168";
+        const userID = stepContext.parent.context.activity.from.id
+        const user =  await this.dbServices.getUser(userID)
+        if(!user) {
+           return stepContext.context.sendActivity('We do not have any evidence for you');
+        }
         const statementIDs = user[this.userID].user.statements;
         let index = 0;
 
@@ -85,9 +89,8 @@ class RetrieveEvidenceDialog extends CancelAndHelpDialog {
     }
 
     async introStep(stepContext) {
-        await this.populateEvidence()
         await this.categorizeEvidence()
-        return await stepContext.prompt(CONFIRM_PROMPT, 'Do you want to retrieve your evidence?\n\n', ['yes', 'no']);
+        return await stepContext.prompt(CONFIRM_PROMPT, 'Do you want to retrieve all your evidence?\n\n', ['yes', 'no']);
     }
 
     async authStep(stepContext) {
@@ -99,37 +102,21 @@ class RetrieveEvidenceDialog extends CancelAndHelpDialog {
     }
 
     async showAllStoredEvidence(stepContext) {
-        const id = stepContext.parent.context.activity.from.id
+        const COUNT_TEXT = "You have "  + this.images.length  + " Photos" + ", " + this.videos.length +  " Videos" + ", " + this.audio.length + " Audio" + ", " + this.text.length + " Locations"  + " data save!";
         if (stepContext.result && this.evidence.length > 0) {
-            let promptText = "";
             let index = 0;
-            this.evidenceArr.map(obj => {
-                console.log(promptText)
-                promptText = promptText + "\n" + (index+1) + "." +  obj.name + "\n";
-            })
-            promptText = promptText + "\n  <Press any other key to exit>"
-            
-            const promptOptions = { prompt: "Please choose which evidence you would like to retrieve:"  + "\n" + promptText };
-            return await stepContext.prompt(TEXT_PROMPT, promptOptions);
-        } else {
-            return await stepContext.next('No evidence found');
-        }
-    }
+            const reply = {
+                type: 'message',
+                text: COUNT_TEXT,
+                attachments: this.evidence
+            };
 
-    async retrieveSelectedEvidence(stepContext) {
-        const selectedEvidence = stepContext.options;
-        selectedEvidence.text = stepContext.result;
+            await stepContext.context.sendActivity(reply);
 
-        if(selectedEvidence.text == 'No evidence found'){
             return await stepContext.endDialog();
-        }else if(Int(statement.text)){
-            const selectedIndex = Int(statement.text - 1)
-            if(selectedIndex >= 0 && selectedIndex < this.evidenceArr.length){
-                const msg = this.evidenceArr[selectedIndex].contentUrl
-                await stepContext.context.sendActivity(msg);
-            }else{
-                this.showAllStoredEvidence(stepContext)
-            }
+        } else {
+            stepContext.context.sendActivity('No evidence found');
+            return await stepContext.next();
         }
     }
 
