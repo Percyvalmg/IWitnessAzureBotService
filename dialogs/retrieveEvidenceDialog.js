@@ -10,35 +10,15 @@ const WATERFALL_DIALOG = 'waterfallDialog';
 const AUTHENTICATION_DIALOG = 'AUTHENTICATION_DIALOG';
 
 class RetrieveEvidenceDialog extends CancelAndHelpDialog {
-    constructor(id, databaseServices, authenticationDialog, userID) {
+    constructor(id, databaseServices, authenticationDialog) {
         super(id || 'retrieveEvidenceDialog');
-        this.dbServices = databaseServices
-        this.userID = userID
-        const userData = {
-            id: "5cff0de4-f95f-492d-a892-aa3504ec4169",
-            realId: "5cff0de4-f95f-492d-a892-aa3504ec4169",
-            document: {
-                statement: {
-                    text: "Died and came back",
-                    evidence: [
-                        {
-                            name: "Screenshot 2020-09-26 at 20.15.32.png",
-                            contentType: "image/png",
-                            contentUrl: "https://72fbbc2e1b20.ngrok.io/v3/attachments/a7b960b0-0e3d-11eb-8007-4d13c7a927ff/views/original"
-                        }
-                    ],
-                    id: "f785c015-6d7a-43b1-8c98-4b91367faa67"
-                }
-            },
-            _rid: "ipUBAJdXJsM-AAAAAAAAAA==",
-            _self: "dbs/ipUBAA==/colls/ipUBAJdXJsM=/docs/ipUBAJdXJsM-AAAAAAAAAA==/",
-            _etag: "\"c3000d03-0000-0700-0000-5f872ce20000\"",
-            _attachments: "attachments/",
-            _ts: 1602694370
-        }
-        //this.dbServices.readFromDatabase([this.userID]) 
-        this.evidenceArr = userData.document.statement.evidence;
-        console.log(this.evidenceArr)
+        this.dbServices = databaseServices;
+        this.evidence = [];
+        this.images = [];
+        this.videos = [];
+        this.audio = [];
+        this.text = [];
+        
 
         this.addDialog(new TextPrompt(TEXT_PROMPT))
             .addDialog(new ConfirmPrompt(CONFIRM_PROMPT))
@@ -46,16 +26,70 @@ class RetrieveEvidenceDialog extends CancelAndHelpDialog {
             .addDialog(authenticationDialog)
             .addDialog(new WaterfallDialog(WATERFALL_DIALOG, [
                 this.introStep.bind(this),
-                this.authStep.bind(this),
+                // this.authStep.bind(this),
                 this.showAllStoredEvidence.bind(this),
-                this.retrieveSelectedEvidence.bind(this),
+                // this.retrieveSelectedEvidence.bind(this),
                 this.finalStep.bind(this)
             ]));
 
         this.initialDialogId = WATERFALL_DIALOG;
     }
 
+    async populateEvidence(){
+        this.userID = "whatsapp:+27618492168";
+        const user =  await this.dbServices.readFromDatabase([this.userID]);
+        const statementIDs = user[this.userID].user.statements;
+        let index = 0;
+
+        for(const statementIDIndex in statementIDs){
+            const currentStatementID = statementIDs[statementIDIndex];
+            const statementData =  await this.dbServices.readFromDatabase([currentStatementID]);
+            const currentObject =  statementData[currentStatementID]
+            
+            for(const evidenceIndex in currentObject.statement.evidence){
+                const currentEvidenceID = statementIDs[evidenceIndex];
+                const evidenceArray =  await this.dbServices.readFromDatabase([currentEvidenceID]);
+
+                for(const evidenceForStatementIndex in evidenceArray[currentEvidenceID].statement.evidence){
+                    const evidenceData = evidenceArray[currentEvidenceID].statement.evidence[evidenceForStatementIndex];
+                    this.evidence[index] = evidenceData;
+                    index++;
+                }
+               
+            }
+        }
+
+    }
+
+    async categorizeEvidence(){
+        let index = 0;
+        let imageIndex = 0;
+        let videosIndex = 0;
+        let audioIndex = 0;
+        let textIndex = 0;
+        for(index in this.evidence) {
+            if(this.evidence[index].contentType.search('image') != -1 ){
+                this.images[imageIndex] = this.evidence[index];
+                imageIndex++;
+            }else if(this.evidence[index].contentType.search('video') != -1){
+                this.videos[videosIndex] = this.evidence[index];
+                videosIndex++;
+            }else if(this.evidence[index].contentType.search('audio') != -1){
+                this.audio[audioIndex] = this.evidence[index];
+                audioIndex++
+            }else {
+                this.text[textIndex] = this.evidence[index];
+                textIndex++
+            }
+        }
+
+        console.log(this.images)
+
+    }
+
     async introStep(stepContext) {
+        await this.populateEvidence()
+        await this.categorizeEvidence()
         return await stepContext.prompt(CONFIRM_PROMPT, 'Do you want to retrieve your evidence?\n\n', ['yes', 'no']);
     }
 
@@ -68,6 +102,7 @@ class RetrieveEvidenceDialog extends CancelAndHelpDialog {
     }
 
     async showAllStoredEvidence(stepContext) {
+        const id = stepContext.parent.context.activity.from.id
         if (stepContext.result && this.evidenceArr.length > 0) {
             let promptText = "";
             let index = 0;
@@ -87,6 +122,7 @@ class RetrieveEvidenceDialog extends CancelAndHelpDialog {
     async retrieveSelectedEvidence(stepContext) {
         const selectedEvidence = stepContext.options;
         selectedEvidence.text = stepContext.result;
+
         if(selectedEvidence.text == 'No evidence found'){
             return await stepContext.endDialog();
         }else if(Int(statement.text)){
