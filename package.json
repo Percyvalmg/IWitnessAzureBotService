@@ -19,6 +19,7 @@
         "@botbuildercommunity/adapter-twilio-whatsapp": "^1.2.0",
         "@microsoft/recognizers-text-data-types-timex-expression": "1.1.4",
         "botbuilder": "~4.10.3",
+        "botbuilder-adapter-facebook": "^1.0.11",
         "botbuilder-ai": "~4.10.3",
         "botbuilder-azure": "^4.10.4",
         "botbuilder-dialogs": "~4.10.3",

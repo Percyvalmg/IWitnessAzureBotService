@@ -144,9 +144,24 @@ const whatsAppAdapter = new TwilioWhatsAppAdapter({
     appPassword: process.env.MicrosoftAppPassword
 });
 
+const { FacebookAdapter } = require('botbuilder-adapter-facebook');
+const facebookAdapter = new FacebookAdapter({
+    verifyoken: process.env.facebookVerifyToken,
+    app_secret: process.env.facebookAppSecret,
+    access_token: process.env.facebookAccessToken
+});
+
 // WhatsApp endpoint for Twilio
 server.post('/api/whatsapp/messages', (req, res) => {
     whatsAppAdapter.processActivity(req, res, async (context) => {
+        // Route to main dialog.
+        await twilioBot.run(context);
+    });
+});
+
+// facebook endpoint for facebook
+server.post('/api/facebook/messages', (req, res) => {
+    facebookAdapter.processActivity(req, res, async (context) => {
         // Route to main dialog.
         await twilioBot.run(context);
     });
