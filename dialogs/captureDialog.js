@@ -36,7 +36,7 @@ class CaptureDialog extends CancelAndHelpDialog {
             evidence.data = stepContext.result;
         }
 
-        return await stepContext.prompt(CONFIRM_PROMPT, 'Would you like to capture more items?\n\n', ['yes', 'no']);
+        return await stepContext.prompt(CONFIRM_PROMPT, 'Do you want to capture more items?\n\n', ['yes', 'no']);
     }
 
     async finalStep(stepContext) {

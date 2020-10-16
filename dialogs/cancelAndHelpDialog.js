@@ -25,7 +25,7 @@ class CancelAndHelpDialog extends ComponentDialog {
             case 'cancel':
             case 'quit':
             case 'exit': {
-                const cancelMessageText = 'Conversation closed!, \nSay "Hello" to start again.';
+                const cancelMessageText = 'Conversation closed! \n\nSay "Hello" to start again.';
                 await innerDc.context.sendActivity(cancelMessageText, cancelMessageText, InputHints.IgnoringInput);
                 return await innerDc.cancelAllDialogs();
             }
