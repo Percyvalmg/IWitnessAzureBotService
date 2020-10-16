@@ -61,7 +61,6 @@ class RetrieveEvidenceDialog extends CancelAndHelpDialog {
                 }
             }
         }
-        console.log(this.evidence)
         return await stepContext.next();
     }
 
