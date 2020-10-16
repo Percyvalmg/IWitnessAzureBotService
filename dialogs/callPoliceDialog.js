@@ -20,7 +20,7 @@ class CallPoliceDialog extends CancelAndHelpDialog {
     }
 
     async introStep(stepContext) {
-        return await stepContext.prompt(TEXT_PROMPT, 'Are you in a position to speak to the police or should we call the police on your behalf?' +
+        return await stepContext.prompt(TEXT_PROMPT, 'Are you in a position to speak to the police or should I call the police on your behalf?' +
             '\n\n1. I will speak to the police.' +
             '\n2. Speak to the police on my behalf.' +
             '\n3. Cancel.');
@@ -29,9 +29,9 @@ class CallPoliceDialog extends CancelAndHelpDialog {
     async actStep(stepContext) {
         switch (stepContext.result) {
         case '1':
-            return await stepContext.context.sendActivity('Call the Police on: \n10111');
+            return await stepContext.context.sendActivity('Call the police on: \n10111');
         case '2':
-            await stepContext.context.sendActivity('Before we call the Police we just have a few questions for you to answer...');
+            await stepContext.context.sendActivity('Before I call the police, I have a few questions for you to answer...');
             return await stepContext.beginDialog('CALL_POLICE_On_BEHALF_OF_DIALOG');
         case '3':
             return stepContext.next();

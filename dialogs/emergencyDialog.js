@@ -23,7 +23,7 @@ class EmergencyDialog extends CancelAndHelpDialog {
     }
 
     async introStep(stepContext) {
-        return await stepContext.prompt(TEXT_PROMPT, 'Should I call the Police or ask for other help?', ['police', 'other help']);
+        return await stepContext.prompt(TEXT_PROMPT, 'Should I call the police or ask for other help?', ['police', 'other help']);
     }
 
     async actStep(stepContext) {
