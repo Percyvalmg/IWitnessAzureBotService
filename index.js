@@ -160,7 +160,7 @@ server.post('/api/whatsapp/messages', (req, res) => {
 });
 
 // facebook endpoint for facebook
-server.post('/api/facebook/messages', (req, res) => {
+server.post('/api/facebook', (req, res) => {
     facebookAdapter.processActivity(req, res, async (context) => {
         // Route to main dialog.
         await twilioBot.run(context);
