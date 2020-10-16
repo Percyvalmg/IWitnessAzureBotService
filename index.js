@@ -55,7 +55,6 @@ const storage = new CosmosDbPartitionedStorage({
     containerId: process.env.CosmosDbContainerId,
     compatibilityMode: false
 });
-let userID = ""
 
 // Catch-all for errors.
 const onTurnErrorHandler = async (context, error) => {
@@ -112,7 +111,7 @@ const otherHelpDialog = new OtherHelpDialog(OTHER_HELP_DIALOG);
 const captureDialog = new CaptureDialog(CAPTURE_DIALOG);
 const captureEvidenceDialog = new CaptureEvidenceDialog(CAPTURE_EVIDENCE_DIALOG, authenticationDialog, captureDialog, databaseService);
 const emergencyDialog = new EmergencyDialog(EMERGENCY_DIALOG, luisRecognizer, otherHelpDialog, callPoliceDialog);
-const retrieveEvidenceDialog = new RetrieveEvidenceDialog(RETRIEVE_EVIDENCE_DIALOG,authenticationDialog, databaseService);
+const retrieveEvidenceDialog = new RetrieveEvidenceDialog(RETRIEVE_EVIDENCE_DIALOG, authenticationDialog, databaseService);
 const mainMenuDialog = new MainMenuDialog(luisRecognizer, emergencyDialog, captureEvidenceDialog, retrieveEvidenceDialog, callPoliceDialog);
 
 const twilioBot = new IWitnessBot(conversationState, userState, mainMenuDialog);
