@@ -102,7 +102,7 @@ const captureDialog = new CaptureDialog(CAPTURE_DIALOG);
 const captureEvidenceDialog = new CaptureEvidenceDialog(CAPTURE_EVIDENCE_DIALOG, authenticationDialog, captureDialog, databaseService);
 const emergencyDialog = new EmergencyDialog(EMERGENCY_DIALOG, luisRecognizer, otherHelpDialog, callPoliceDialog);
 const retrieveEvidenceDialog = new RetrieveEvidenceDialog(RETRIEVE_EVIDENCE_DIALOG, authenticationDialog, databaseService);
-const mainMenuDialog = new MainMenuDialog(luisRecognizer, emergencyDialog, captureEvidenceDialog, retrieveEvidenceDialog, callPoliceDialog);
+const mainMenuDialog = new MainMenuDialog(luisRecognizer, emergencyDialog, captureEvidenceDialog, retrieveEvidenceDialog, callPoliceDialog, otherHelpDialog);
 
 const bot = new IWitnessBot(conversationState, userState, mainMenuDialog);
 

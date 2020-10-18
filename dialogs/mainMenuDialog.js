@@ -8,12 +8,13 @@ const {
     RETRIEVE_EVIDENCE_DIALOG,
     CALL_POLICE_DIALOG,
     CAPTURE_EVIDENCE_DIALOG,
-    MAIN_MENU_DIALOG
+    MAIN_MENU_DIALOG,
+    OTHER_HELP_DIALOG
 } = require('../models/dialogIdConstants');
 const MAIN_MENU_WATERFALL_DIALOG = 'MAIN_MENU_WATERFALL_DIALOG';
 
 class MainMenuDialog extends CancelAndHelpDialog {
-    constructor(luisRecognizer, emergencyDialog, captureEvidenceDialog, retrieveEvidenceDialog, callPoliceDialog) {
+    constructor(luisRecognizer, emergencyDialog, captureEvidenceDialog, retrieveEvidenceDialog, callPoliceDialog, otherHelpDialog) {
         super(MAIN_MENU_DIALOG);
 
         if (!luisRecognizer) throw new Error('[MainDialog]: Missing parameter \'luisRecognizer\' is required');
@@ -27,6 +28,7 @@ class MainMenuDialog extends CancelAndHelpDialog {
             .addDialog(captureEvidenceDialog)
             .addDialog(retrieveEvidenceDialog)
             .addDialog(callPoliceDialog)
+            .addDialog(otherHelpDialog)
             .addDialog(new WaterfallDialog(MAIN_MENU_WATERFALL_DIALOG, [
                 this.introStep.bind(this),
                 this.actStep.bind(this),
@@ -50,7 +52,7 @@ class MainMenuDialog extends CancelAndHelpDialog {
     async introStep(stepContext) {
         if (!this.luisRecognizer.isConfigured) {
             const messageText = 'NOTE: LUIS is not configured. To enable all capabilities, add `LuisAppId`, `LuisAPIKey` and `LuisAPIHostName` to the .env file.';
-            await stepContext.context.sendActivity(messageText, null, InputHints.IgnoringInput);
+            console.log(messageText);
             return await stepContext.next();
         }
 
@@ -58,7 +60,8 @@ class MainMenuDialog extends CancelAndHelpDialog {
             '\nWhich of the below can i assist you with today?' +
             '\n\n1. Emergency' +
             '\n2. Capture Evidence' +
-            '\n3. Retrieve Evidence';
+            '\n3. Retrieve Evidence' +
+            '\n4. Help and Support Services';
 
         const promptMessage = MessageFactory.text(messageText, messageText, InputHints.ExpectingInput);
         return await stepContext.prompt(TEXT_PROMPT, { prompt: promptMessage });
@@ -98,7 +101,7 @@ class MainMenuDialog extends CancelAndHelpDialog {
             return await stepContext.beginDialog(RETRIEVE_EVIDENCE_DIALOG);
         }
 
-        default: {
+        case 'NumberOption': {
             switch (stepContext.result) {
             case '1':
             case 'one':
@@ -109,12 +112,22 @@ class MainMenuDialog extends CancelAndHelpDialog {
             case '3':
             case 'three':
                 return await stepContext.beginDialog(RETRIEVE_EVIDENCE_DIALOG);
+            case '4':
+            case 'four':
+                return await stepContext.beginDialog(OTHER_HELP_DIALOG);
+
             default: {
                 const didntUnderstandMessageText = `Sorry, I didn't get that. Please try asking in a different way (intent was ${ LuisRecognizer.topIntent(luisResult) })
                 \n\nThe IWitness Team is currently working on making me better`;
-                await stepContext.context.sendActivity(didntUnderstandMessageText, didntUnderstandMessageText, InputHints.IgnoringInput);
+                return await stepContext.context.sendActivity(didntUnderstandMessageText, didntUnderstandMessageText, InputHints.IgnoringInput);
             }
             }
+        }
+
+        default: {
+            const didntUnderstandMessageText = `Sorry, I didn't get that. Please try asking in a different way (intent was ${ LuisRecognizer.topIntent(luisResult) })
+                \n\nThe IWitness Team is currently working on making me better`;
+            await stepContext.context.sendActivity(didntUnderstandMessageText, didntUnderstandMessageText, InputHints.IgnoringInput);
         }
         }
 
@@ -135,7 +148,7 @@ class MainMenuDialog extends CancelAndHelpDialog {
             return await stepContext.context.sendActivity(msg, msg, InputHints.IgnoringInput);
         }
 
-        return await stepContext.replaceDialog(this.initialDialogId, { restartMsg: 'What else can I do for you?\n\n1. Emergency\n2. Capture Evidence\n3. Retrieve Evidence' });
+        return await stepContext.replaceDialog(this.initialDialogId, { restartMsg: 'What else can I do for you?\n\n1. Emergency\n2. Capture Evidence\n3. Retrieve Evidence\n4. Help and Support Services' });
     }
 }
 
