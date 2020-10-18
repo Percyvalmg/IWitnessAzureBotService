@@ -53,7 +53,6 @@ class CaptureEvidenceDialog extends CancelAndHelpDialog {
                 {
                     contentType: 'image/png',
                     contentUrl: 'http://cdn.thelayer.com/layersystems-public/eetcs.png'
-                    // contentUrl: '../T&Cs/tcs.png'
                 }
             ]
         };
