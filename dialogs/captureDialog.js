@@ -21,8 +21,9 @@ class CaptureDialog extends CancelAndHelpDialog {
 
     async captureStep(stepContext) {
         const promptOptions = {
-            prompt: 'Please attach evidence (or type any message to skip).',
-            retryPrompt: 'The attachment must be a media file.'
+            prompt: 'Please attach evidence (or type any message to skip).' +
+                '\n\nNB: You can send image(s), video(s) or location(s).',
+            retryPrompt: 'The attachment must be an image, video or location.'
         };
 
         return await stepContext.prompt(ATTACHMENT_PROMPT, promptOptions);
