@@ -27,13 +27,24 @@ class CallPoliceOnBehalfOfDialog extends CancelAndHelpDialog {
     }
 
     async getLocationStep(stepContext) {
+        if (stepContext.parent.context.activity.channelId === 'whatsapp') {
+            const promptOptions = {
+                prompt: 'Please send us your current location. (Not live location)',
+                retryPrompt: 'The item you sent us was not a location.' +
+                    '\n\nPlease send us your current location. (Not live location)'
+            };
+
+            return await stepContext.prompt(ATTACHMENT_PROMPT, promptOptions);
+        }
+
+        // TODO find a way to cater for location on web and facebook
         const promptOptions = {
-            prompt: 'Please send us your current location. (Not live location)',
+            prompt: 'Please send us your current location.',
             retryPrompt: 'The item you sent us was not a location.' +
                 '\n\nPlease send us your current location. (Not live location)'
         };
 
-        return await stepContext.prompt(ATTACHMENT_PROMPT, promptOptions);
+        return await stepContext.prompt(TEXT_PROMPT, promptOptions);
     }
 
     async getNameAndSurname(stepContext) {
