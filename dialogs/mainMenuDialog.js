@@ -78,6 +78,10 @@ class MainMenuDialog extends CancelAndHelpDialog {
 
         const luisResult = await this.luisRecognizer.executeLuisQuery(stepContext.context);
         switch (LuisRecognizer.topIntent(luisResult)) {
+        case 'Greeting': {
+            return await stepContext.beginDialog(MAIN_MENU_WATERFALL_DIALOG);
+        }
+
         case 'Emergency': {
             return await stepContext.beginDialog(EMERGENCY_DIALOG);
         }
