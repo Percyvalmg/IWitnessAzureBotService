@@ -35,28 +35,27 @@ class RetrieveEvidenceDialog extends CancelAndHelpDialog {
         if (!user) {
             return stepContext.context.sendActivity('We do not have any evidence for you');
         }
+
         const statementIDs = user.statements;
         let index = 0;
 
-        for (const statementIDIndex in statementIDs) {
+        for (let statementIDIndex in statementIDs) {
             const currentStatementID = statementIDs[statementIDIndex];
             const statementData = await this.dbServices.readFromDatabase([currentStatementID]);
             const currentObject = statementData[currentStatementID];
             const timestamp = currentObject.statement.date;
 
-            for (const evidenceIndex in currentObject.statement.evidence) {
-                const currentEvidenceID = statementIDs[evidenceIndex];
-                const evidenceArray = await this.dbServices.readFromDatabase([currentEvidenceID]);
+            const evidenceArray = await this.dbServices.readFromDatabase([currentStatementID]);
 
-                for (const evidenceForStatementIndex in evidenceArray[currentEvidenceID].statement.evidence) {
-                    const evidenceData = evidenceArray[currentEvidenceID].statement.evidence[evidenceForStatementIndex];
-                    this.evidence[index] = {
-                        ...evidenceData,
-                        timestamp
-                    };
-                    index++;
-                }
+            for (let evidenceForStatementIndex in evidenceArray[currentStatementID].statement.evidence) {
+                const evidenceData = evidenceArray[currentStatementID].statement.evidence[evidenceForStatementIndex];
+                this.evidence[index] = {
+                    ...evidenceData,
+                    timestamp
+                };
+                index++;
             }
+
         }
         return await stepContext.next();
     }
@@ -103,7 +102,7 @@ class RetrieveEvidenceDialog extends CancelAndHelpDialog {
         });
         const COUNT_TEXT = 'You have ' + this.images.length + ' Photos' + ', ' + this.videos.length + ' Videos' + ', ' + this.audio.length + ' Audios' + ', ' + this.text.length + ' Locations' + ' data save!';
         await stepContext.context.sendActivity(COUNT_TEXT);
-        if (stepContext.result && this.evidence.length > 0) {
+        if (this.evidence.length > 0) {
             sortedEvidence.forEach(async value => {
                 const reply = {
                     type: 'message',
@@ -113,7 +112,7 @@ class RetrieveEvidenceDialog extends CancelAndHelpDialog {
 
                 await stepContext.context.sendActivity(reply);
             });
-            return await stepContext.endDialog();
+            return await stepContext.next();
         } else {
             await stepContext.context.sendActivity('No evidence found');
             return await stepContext.next();
