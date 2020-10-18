@@ -39,7 +39,7 @@ class RetrieveEvidenceDialog extends CancelAndHelpDialog {
         const statementIDs = user.statements;
         let index = 0;
 
-        for (let statementIDIndex in statementIDs) {
+        for (const statementIDIndex in statementIDs) {
             const currentStatementID = statementIDs[statementIDIndex];
             const statementData = await this.dbServices.readFromDatabase([currentStatementID]);
             const currentObject = statementData[currentStatementID];
@@ -47,7 +47,7 @@ class RetrieveEvidenceDialog extends CancelAndHelpDialog {
 
             const evidenceArray = await this.dbServices.readFromDatabase([currentStatementID]);
 
-            for (let evidenceForStatementIndex in evidenceArray[currentStatementID].statement.evidence) {
+            for (const evidenceForStatementIndex in evidenceArray[currentStatementID].statement.evidence) {
                 const evidenceData = evidenceArray[currentStatementID].statement.evidence[evidenceForStatementIndex];
                 this.evidence[index] = {
                     ...evidenceData,
@@ -55,7 +55,6 @@ class RetrieveEvidenceDialog extends CancelAndHelpDialog {
                 };
                 index++;
             }
-
         }
         return await stepContext.next();
     }
