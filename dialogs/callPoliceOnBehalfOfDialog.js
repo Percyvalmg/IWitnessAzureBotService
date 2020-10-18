@@ -76,8 +76,7 @@ class CallPoliceOnBehalfOfDialog extends CancelAndHelpDialog {
         user.description = stepContext.result;
         await stepContext.context.sendActivity('Thank you! ' +
             '\nWe have all the details we need. ' +
-            '\nWe will be sending a message to you shortly to confirm that we have contacted the police.' +
-            '\n\nIn the meantime please move to a safe location.');
+            '\nWe will be sending a message to you shortly to confirm that we have contacted the police.');
 
         return await stepContext.endDialog(user);
     }

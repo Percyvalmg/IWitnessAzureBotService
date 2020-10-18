@@ -100,9 +100,10 @@ class CaptureEvidenceDialog extends CancelAndHelpDialog {
             });
 
             return await stepContext.endDialog(statement);
+        } else {
+            await stepContext.context.sendActivity('The items you sent us have not been captured.');
+            return await stepContext.endDialog();
         }
-
-        return await stepContext.endDialog();
     }
 }
 
