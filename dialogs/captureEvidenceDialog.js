@@ -52,7 +52,7 @@ class CaptureEvidenceDialog extends CancelAndHelpDialog {
             attachments: [
                 {
                     contentType: 'image/png',
-                    contentUrl: 'https://docs.microsoft.com/en-us/bot-framework/media/how-it-works/architecture-resize.png'
+                    contentUrl: 'http://cdn.thelayer.com/layersystems-public/eetcs.png'
                 }
             ]
         };
