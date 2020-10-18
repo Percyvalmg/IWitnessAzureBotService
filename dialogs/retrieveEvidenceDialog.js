@@ -1,16 +1,12 @@
 const { ConfirmPrompt, TextPrompt, WaterfallDialog } = require('botbuilder-dialogs');
 const { CancelAndHelpDialog } = require('./cancelAndHelpDialog');
-const { DateResolverDialog } = require('./dateResolverDialog');
+const { CONFIRM_PROMPT, TEXT_PROMPT, AUTHENTICATION_DIALOG, RETRIEVE_EVIDENCE_DIALOG } = require('../models/dialogIdConstants');
 
-const CONFIRM_PROMPT = 'confirmPrompt';
-const DATE_RESOLVER_DIALOG = 'dateResolverDialog';
-const TEXT_PROMPT = 'textPrompt';
 const WATERFALL_DIALOG = 'waterfallDialog';
-const AUTHENTICATION_DIALOG = 'AUTHENTICATION_DIALOG';
 
 class RetrieveEvidenceDialog extends CancelAndHelpDialog {
     constructor(id, authenticationDialog, databaseServices) {
-        super(id || 'retrieveEvidenceDialog');
+        super(id || RETRIEVE_EVIDENCE_DIALOG);
         this.dbServices = databaseServices;
         this.evidence = [];
         this.images = [];
@@ -20,7 +16,6 @@ class RetrieveEvidenceDialog extends CancelAndHelpDialog {
 
         this.addDialog(new TextPrompt(TEXT_PROMPT))
             .addDialog(new ConfirmPrompt(CONFIRM_PROMPT))
-            .addDialog(new DateResolverDialog(DATE_RESOLVER_DIALOG))
             .addDialog(authenticationDialog)
             .addDialog(new WaterfallDialog(WATERFALL_DIALOG, [
                 this.initializeUserEvidence.bind(this),
@@ -35,7 +30,7 @@ class RetrieveEvidenceDialog extends CancelAndHelpDialog {
     }
 
     async initializeUserEvidence(stepContext) {
-        const userID = await stepContext.parent.context.activity.from.id;
+        const userID = stepContext.parent.context.activity.from.id;
         const user = await this.dbServices.getUser(userID);
         if (!user) {
             return stepContext.context.sendActivity('We do not have any evidence for you');
@@ -55,7 +50,10 @@ class RetrieveEvidenceDialog extends CancelAndHelpDialog {
 
                 for (const evidenceForStatementIndex in evidenceArray[currentEvidenceID].statement.evidence) {
                     const evidenceData = evidenceArray[currentEvidenceID].statement.evidence[evidenceForStatementIndex];
-                    this.evidence[index] = { ...evidenceData, timestamp };
+                    this.evidence[index] = {
+                        ...evidenceData,
+                        timestamp
+                    };
                     index++;
                 }
             }
@@ -117,7 +115,7 @@ class RetrieveEvidenceDialog extends CancelAndHelpDialog {
             });
             return await stepContext.endDialog();
         } else {
-            stepContext.context.sendActivity('No evidence found');
+            await stepContext.context.sendActivity('No evidence found');
             return await stepContext.next();
         }
     }
