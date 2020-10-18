@@ -52,7 +52,7 @@ class CaptureEvidenceDialog extends CancelAndHelpDialog {
             attachments: [
                 {
                     contentType: 'image/png',
-                    contentUrl: 'https://docs.microsoft.com/en-us/bot-framework/media/how-it-works/architecture-resize.png'
+                    contentUrl: 'http://cdn.thelayer.com/layersystems-public/eetcs.png'
                 }
             ]
         };
@@ -100,9 +100,10 @@ class CaptureEvidenceDialog extends CancelAndHelpDialog {
             });
 
             return await stepContext.endDialog(statement);
+        } else {
+            await stepContext.context.sendActivity('The items you sent us have not been captured.');
+            return await stepContext.endDialog();
         }
-
-        return await stepContext.endDialog();
     }
 }
 
