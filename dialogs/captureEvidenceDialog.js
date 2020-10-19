@@ -43,12 +43,12 @@ class CaptureEvidenceDialog extends CancelAndHelpDialog {
         const statement = stepContext.options;
         statement.text = stepContext.result;
 
-        const msg = statement.text === 'No statement given' ? 'No statement given' : `I have your statement as: \n\n "${ statement.text }".`;
+        const msg = statement.text === 'No statement given' ? 'No statement given' : `I have your statement as: \n\n *"${ statement.text }"*.`;
         await stepContext.context.sendActivity(msg);
 
         const termsAndConditions = {
             type: 'message',
-            text: 'In order for us to capture you data, you need to read and accept the terms and conditions in the attached image',
+            text: 'In order for us to capture you data, \nyou need to read and accept the *terms and conditions* in the attached image',
             attachments: [
                 {
                     contentType: 'image/png',
@@ -78,7 +78,7 @@ class CaptureEvidenceDialog extends CancelAndHelpDialog {
         statement.evidence = stepContext.result;
 
         if (statement.evidence) {
-            const messageText = `Thank you we have received ${ statement.evidence.length } item(s). \n\nShould we continue to store them?`;
+            const messageText = `😉 Thank you we have received ${ statement.evidence.length } item(s). \n\nShould we continue to store them?`;
             return await stepContext.prompt(CONFIRM_PROMPT, messageText);
         } else {
             return await stepContext.next();
@@ -87,7 +87,7 @@ class CaptureEvidenceDialog extends CancelAndHelpDialog {
 
     async finalStep(stepContext) {
         if (stepContext.result === true) {
-            await stepContext.context.sendActivity('Your items have been captured');
+            await stepContext.context.sendActivity('Your items have been captured ✅');
             const statement = stepContext.options;
             statement.id = stepContext.parent.context.activity.from.id;
             statement.date = Date.now();

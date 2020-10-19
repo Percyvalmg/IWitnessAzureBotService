@@ -30,9 +30,9 @@ class OtherHelpDialog extends CancelAndHelpDialog {
 
     async introStep(stepContext) {
         const messageText = stepContext.options.restartMsg ? stepContext.options.restartMsg : '\nWhat kind of help do you need?' +
-            '\n1. Speak to a counsellor' +
-            '\n2. Get the address for a place of safety' +
-            '\n3. Get information on how to apply for a protection order';
+            '\n1. Speak to a counsellor 👩🏾‍💼' +
+            '\n2. Get the address for a place of safety 📍' +
+            '\n3. Get information on how to apply for a protection order 📋';
 
         return await stepContext.prompt(TEXT_PROMPT, { prompt: messageText });
     }
@@ -58,8 +58,8 @@ class OtherHelpDialog extends CancelAndHelpDialog {
             case 'three':
                 return await stepContext.beginDialog(PROTECTION_ORDER_DIALOG);
             default: {
-                const didntUnderstandMessageText = `Sorry, I didn't get that. Please try asking in a different way (intent was ${ LuisRecognizer.topIntent(luisResult) })
-            \n\nThe IWitness Team is currently working on making me better`;
+                const didntUnderstandMessageText = `☹️ Sorry, I didn't get that. Please try asking in a different way (intent was ${ LuisRecognizer.topIntent(luisResult) })
+            \n\nThe *IWitness Team* is currently working on making me better`;
                 await stepContext.context.sendActivity(didntUnderstandMessageText, didntUnderstandMessageText, InputHints.IgnoringInput);
             }
             }

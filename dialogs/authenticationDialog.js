@@ -34,7 +34,7 @@ class AuthenticationDialog extends CancelAndHelpDialog {
         if (!this.user) {
             this.user = new User(stepContext.parent.context.activity.from.id, stepContext.result);
         } else if (this.user.password !== stepContext.result) {
-            await stepContext.context.sendActivity('Your password is incorrect, please try again');
+            await stepContext.context.sendActivity('Your password is incorrect, please try again ☹️');
             return await stepContext.replaceDialog(AUTHENTICATION_DIALOG, false);
         }
 
