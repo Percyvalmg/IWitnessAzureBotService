@@ -17,9 +17,9 @@ class PlaceOfSafetyDialog extends CancelAndHelpDialog {
 
     async introStep(stepContext) {
         return await stepContext.context.sendActivity('Based on your location, this is the nearest place of safety:' +
-            '\n POWA Soweto' +
-            '\n Room 10 Nthabiseng Centre, Chris Hani Hospital' +
-            '\n Telephone: 011 933 2333/2310'
+            '\n *POWA Soweto*' +
+            '\n *Room 10 Nthabiseng Centre, Chris Hani Hospital*' +
+            '\n *Telephone: 011 933 2333/2310*'
         );
     }
 

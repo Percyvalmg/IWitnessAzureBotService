@@ -56,12 +56,12 @@ class MainMenuDialog extends CancelAndHelpDialog {
             return await stepContext.next();
         }
 
-        const messageText = stepContext.options.restartMsg ? stepContext.options.restartMsg : 'Hi I am the IWitness Bot.' +
+        const messageText = stepContext.options.restartMsg ? stepContext.options.restartMsg : 'Hi I am the *IWitness Bot 🤖*.' +
             '\nWhich of the below can i assist you with today?' +
-            '\n\n1. Emergency' +
-            '\n2. Capture Evidence' +
-            '\n3. Retrieve Evidence' +
-            '\n4. Help and Support Services';
+            '\n\n1. Emergency 🚨' +
+            '\n2. Capture Evidence 📸' +
+            '\n3. Retrieve Evidence 🔬' +
+            '\n4. Help and Support Services 🩺';
 
         const promptMessage = MessageFactory.text(messageText, messageText, InputHints.ExpectingInput);
         return await stepContext.prompt(TEXT_PROMPT, { prompt: promptMessage });
@@ -117,7 +117,7 @@ class MainMenuDialog extends CancelAndHelpDialog {
                 return await stepContext.beginDialog(OTHER_HELP_DIALOG);
 
             default: {
-                const didntUnderstandMessageText = `Sorry, I didn't get that. Please try asking in a different way (intent was ${ LuisRecognizer.topIntent(luisResult) })
+                const didntUnderstandMessageText = `☹️ Sorry, I didn't get that. Please try asking in a different way (intent was ${ LuisRecognizer.topIntent(luisResult) })
                 \n\nThe IWitness Team is currently working on making me better`;
                 return await stepContext.context.sendActivity(didntUnderstandMessageText, didntUnderstandMessageText, InputHints.IgnoringInput);
             }
@@ -125,7 +125,7 @@ class MainMenuDialog extends CancelAndHelpDialog {
         }
 
         default: {
-            const didntUnderstandMessageText = `Sorry, I didn't get that. Please try asking in a different way (intent was ${ LuisRecognizer.topIntent(luisResult) })
+            const didntUnderstandMessageText = `☹️ Sorry, I didn't get that. Please try asking in a different way (intent was ${ LuisRecognizer.topIntent(luisResult) })
                 \n\nThe IWitness Team is currently working on making me better`;
             await stepContext.context.sendActivity(didntUnderstandMessageText, didntUnderstandMessageText, InputHints.IgnoringInput);
         }
@@ -148,7 +148,13 @@ class MainMenuDialog extends CancelAndHelpDialog {
             return await stepContext.context.sendActivity(msg, msg, InputHints.IgnoringInput);
         }
 
-        return await stepContext.replaceDialog(this.initialDialogId, { restartMsg: 'What else can I do for you?\n\n1. Emergency\n2. Capture Evidence\n3. Retrieve Evidence\n4. Help and Support Services' });
+        return await stepContext.replaceDialog(this.initialDialogId, {
+            restartMsg: 'What else can I do for you?' +
+                '\n\n1. Emergency 🚨' +
+                '\n2. Capture Evidence 📸' +
+                '\n3. Retrieve Evidence 🔬' +
+                '\n4. Help and Support Services 🩺'
+        });
     }
 }
 
