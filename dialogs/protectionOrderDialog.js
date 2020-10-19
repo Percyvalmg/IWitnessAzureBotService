@@ -22,12 +22,13 @@ class ProtectionOrderDialog extends CancelAndHelpDialog {
             attachments: [
                 {
                     contentType: 'image/jpg',
-                    contentUrl: 'https://iwitney8f56z.blob.core.windows.net/ngodata/Protection order procedures.jpg'
+                    contentUrl: 'https://iwitney8f56z.blob.core.windows.net/ngodata/Protection%20order%20procedures.jpg'
                 },
                 {
                     contentType: 'application/pdf',
                     contentUrl: 'https://iwitney8f56z.blob.core.windows.net/ngodata/protection_order_application.pdf'
-                }]
+                }
+            ]
         };
 
         return await stepContext.context.sendActivity(protectionOrder);
