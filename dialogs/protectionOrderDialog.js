@@ -16,14 +16,23 @@ class ProtectionOrderDialog extends CancelAndHelpDialog {
     }
 
     async introStep(stepContext) {
-        const protectionOrder = {
+        const protectionOrderGuideline = {
             type: 'message',
-            text: 'These are the steps to follow to apply for a Protection Order.',
+            text: 'These are the steps to follow when applying for a Protection Order.',
             attachments: [
                 {
                     contentType: 'image/jpg',
                     contentUrl: 'https://iwitney8f56z.blob.core.windows.net/ngodata/Protection%20order%20procedures.jpg'
-                },
+                }
+            ]
+        };
+
+        await stepContext.context.sendActivity(protectionOrderGuideline);
+
+        const protectionOrderForm = {
+            type: 'message',
+            text: 'This is a protection order form.',
+            attachments: [
                 {
                     contentType: 'application/pdf',
                     contentUrl: 'https://iwitney8f56z.blob.core.windows.net/ngodata/protection_order_application.pdf'
@@ -31,7 +40,7 @@ class ProtectionOrderDialog extends CancelAndHelpDialog {
             ]
         };
 
-        return await stepContext.context.sendActivity(protectionOrder);
+        return await stepContext.context.sendActivity(protectionOrderForm);
     }
 
     async finalStep(stepContext) {
