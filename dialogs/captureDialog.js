@@ -20,10 +20,15 @@ class CaptureDialog extends CancelAndHelpDialog {
     }
 
     async captureStep(stepContext) {
-        const promptOptions = {
+        const isWhatsAPP = stepContext.parent.context.activity.channelId === 'whatsapp';
+        const promptOptions = isWhatsAPP ? {
+            prompt: 'Please attach evidence one item at a time (or type any message to skip).' +
+                '\n\nNB: You can send image(s), video(s), audio(s) or location(s).',
+            retryPrompt: 'The attachment must be an image, video, audio or location.'
+        } : {
             prompt: 'Please attach evidence (or type any message to skip).' +
-                '\n\nNB: You can send image(s), video(s) or location(s).',
-            retryPrompt: 'The attachment must be an image, video or location.'
+                '\n\nNB: You can send image(s), video(s), audio(s) or location(s).',
+            retryPrompt: 'The attachment must be an image, video, audio or location.'
         };
 
         return await stepContext.prompt(ATTACHMENT_PROMPT, promptOptions);
