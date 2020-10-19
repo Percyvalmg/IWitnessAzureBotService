@@ -94,10 +94,10 @@ class RetrievalMenuDialog extends CancelAndHelpDialog {
         if (this.evidence.length > 0) {
             let messagePrompt = 'Retrieve evidence you captured ';
             this.timestampedEvidence = [];
+            let index = 0;
 
             sortedEvidence.forEach(async value => {
                 let tempEvidence = [];
-                let index = 0;
                 if (this.timestampedEvidence[value.timestamp] !== undefined) {
                     tempEvidence = this.timestampedEvidence[value.timestamp].map(e => {
                         index++;
