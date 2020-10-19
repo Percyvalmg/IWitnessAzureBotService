@@ -84,41 +84,33 @@ class RetrievalMenuDialog extends CancelAndHelpDialog {
         return await stepContext.next();
     }
 
-    getMessagePrompt() {
+    async showEvidenceByTimestampPrompt(stepContext) {
         const sortedEvidence = this.evidence.sort((a, b) => {
             return a.timestamp < b.timestamp;
         });
-        let messagePrompt = 'Retrieve evidence you captured ';
-        this.timestampedEvidence = [];
-        let index = 0;
-
-        for (const sortedIndex in sortedEvidence) {
-            const value = sortedEvidence[sortedIndex];
-            let tempEvidence = [];
-
-            if (this.timestampedEvidence[value.timestamp] !== undefined) {
-                tempEvidence = this.timestampedEvidence[value.timestamp].map(e => {
-                    index = index + 1;
-                    return e;
-                });
-            } else {
-                messagePrompt = messagePrompt + '\n' + (index + 1) + '. ' + moment(new Date(value.timestamp), 'YYYYMMDD').fromNow();
-            }
-
-            tempEvidence[index] = value;
-            this.timestampedEvidence[value.timestamp] = tempEvidence;
-        }
-
-        messagePrompt = messagePrompt + '\n\n' + '<Send any message to go to the main menu>';
-        return messagePrompt;
-    }
-
-    async showEvidenceByTimestampPrompt(stepContext) {
         const COUNT_TEXT = 'You have ' + this.images.length + ' Photos' + ', ' + this.videos.length + ' Videos' + ', ' + this.audio.length + ' Audios' + ', ' + this.text.length + ' Locations' + ' data save!';
         await stepContext.context.sendActivity(COUNT_TEXT);
 
         if (this.evidence.length > 0) {
-            const messagePrompt = this.getMessagePrompt();
+            let messagePrompt = 'Retrieve evidence you captured ';
+            this.timestampedEvidence = [];
+            let index = 0;
+
+            sortedEvidence.forEach(value => {
+                let tempEvidence = [];
+                if (this.timestampedEvidence[value.timestamp] !== undefined) {
+                    tempEvidence = this.timestampedEvidence[value.timestamp].map(e => {
+                        index = index + 1;
+                        return e;
+                    });
+                } else {
+                    messagePrompt = messagePrompt + '\n' + index + 1 + '. ' + moment(new Date(value.timestamp), 'YYYYMMDD').fromNow();
+                }
+                tempEvidence[index] = value;
+                this.timestampedEvidence[value.timestamp] = tempEvidence;
+            });
+
+            messagePrompt = messagePrompt + '\n\n' + '<Send any message to go to the main menu>';
             return await stepContext.prompt(TEXT_PROMPT, { prompt: messagePrompt });
         } else {
             await stepContext.context.sendActivity('We do not have any evidence for you');
@@ -145,7 +137,7 @@ class RetrievalMenuDialog extends CancelAndHelpDialog {
             const selectedOption = Number(stepContext.result);
             const date = new Date(Number(Object.keys(this.timestampedEvidence)[selectedOption - 1]));
             const relativeDate = moment(date, 'YYYYMMDD').fromNow();
-            const isWhatsApp = stepContext.parent.context.activity.channelId === 'whatsapp';
+            const isWhatsApp = true;// stepContext.parent.context.activity.channelId === 'whatsapp';
 
             if (isWhatsApp) {
                 await this.showEvidenceForWhatsApp(stepContext, selectedOption);
@@ -159,6 +151,7 @@ class RetrievalMenuDialog extends CancelAndHelpDialog {
                 text: `${ relativeDate }`,
                 attachments: this.timestampedEvidence[Object.keys(this.timestampedEvidence)[selectedOption - 1]]
             };
+
             await stepContext.context.sendActivity(reply);
             return await stepContext.replaceDialog(this.initialDialogId, {
                 restartMsg: this.prompt
