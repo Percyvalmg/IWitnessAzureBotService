@@ -118,7 +118,7 @@ class RetrieveEvidenceDialog extends CancelAndHelpDialog {
             messagePrompt = messagePrompt + '\n\n' + '<Press any other key to go to the main menu>';
             return await stepContext.prompt(TEXT_PROMPT, { prompt: messagePrompt });
         } else {
-            await stepContext.context.sendActivity('No evidence found');
+            await stepContext.context.sendActivity('We do not have any evidence for you');
             return await stepContext.endDialog();
         }
     }
