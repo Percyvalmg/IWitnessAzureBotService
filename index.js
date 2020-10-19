@@ -17,6 +17,7 @@ const {
     CAPTURE_EVIDENCE_DIALOG,
     EMERGENCY_DIALOG,
     RETRIEVE_EVIDENCE_DIALOG,
+    RETRIEVAL_MENU_DIALOG,
     AUTHENTICATION_DIALOG,
     CAPTURE_DIALOG,
     OTHER_HELP_DIALOG,
@@ -26,6 +27,7 @@ const {
 const { CaptureEvidenceDialog } = require('./dialogs/captureEvidenceDialog');
 const { EmergencyDialog } = require('./dialogs/emergencyDialog');
 const { RetrieveEvidenceDialog } = require('./dialogs/retrieveEvidenceDialog');
+const { RetrievalMenuDialog } = require('./dialogs/retrievalMenuDialog');
 const { AuthenticationDialog } = require('./dialogs/authenticationDialog');
 const { OtherHelpDialog } = require('./dialogs/otherHelpDialog');
 const { CaptureDialog } = require('./dialogs/captureDialog');
@@ -101,7 +103,8 @@ const otherHelpDialog = new OtherHelpDialog(OTHER_HELP_DIALOG);
 const captureDialog = new CaptureDialog(CAPTURE_DIALOG);
 const captureEvidenceDialog = new CaptureEvidenceDialog(CAPTURE_EVIDENCE_DIALOG, authenticationDialog, captureDialog, databaseService);
 const emergencyDialog = new EmergencyDialog(EMERGENCY_DIALOG, luisRecognizer, otherHelpDialog, callPoliceDialog);
-const retrieveEvidenceDialog = new RetrieveEvidenceDialog(RETRIEVE_EVIDENCE_DIALOG, authenticationDialog, databaseService);
+const retrievalMenuDialog = new RetrievalMenuDialog(RETRIEVAL_MENU_DIALOG, databaseService);
+const retrieveEvidenceDialog = new RetrieveEvidenceDialog(RETRIEVE_EVIDENCE_DIALOG, authenticationDialog, retrievalMenuDialog);
 const mainMenuDialog = new MainMenuDialog(luisRecognizer, emergencyDialog, captureEvidenceDialog, retrieveEvidenceDialog, callPoliceDialog, otherHelpDialog);
 
 const bot = new IWitnessBot(conversationState, userState, mainMenuDialog);
