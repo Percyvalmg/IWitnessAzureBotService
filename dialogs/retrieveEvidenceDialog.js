@@ -98,25 +98,24 @@ class RetrieveEvidenceDialog extends CancelAndHelpDialog {
         await stepContext.context.sendActivity(COUNT_TEXT);
 
         if (this.evidence.length > 0) {
-            let messagePrompt = "Retrieve evidence you captured "
+            let messagePrompt = 'Retrieve evidence you captured ';
             this.timestampedEvidence = [];
 
             sortedEvidence.forEach(async value => {
                 let tempEvidence = [];
                 let index = 0;
-                if(this.timestampedEvidence[value.timestamp] !== undefined){
+                if (this.timestampedEvidence[value.timestamp] !== undefined) {
                     tempEvidence = this.timestampedEvidence[value.timestamp].map(e => {
                         index++;
                         return e;
                     });
-                }else{
-                    messagePrompt = messagePrompt + "\n" + (index+1) + ". " + moment(new Date(value.timestamp), "YYYYMMDD").fromNow();
+                } else {
+                    messagePrompt = messagePrompt + '\n' + (index + 1) + '. ' + moment(new Date(value.timestamp), 'YYYYMMDD').fromNow();
                 }
                 tempEvidence[index] = value;
-                this.timestampedEvidence[value.timestamp] = tempEvidence
-
+                this.timestampedEvidence[value.timestamp] = tempEvidence;
             });
-            messagePrompt = messagePrompt + "\n\n" + "<Press any other key to go to the main menu>"
+            messagePrompt = messagePrompt + '\n\n' + '<Press any other key to go to the main menu>';
             return await stepContext.prompt(TEXT_PROMPT, { prompt: messagePrompt });
         } else {
             await stepContext.context.sendActivity('No evidence found');
@@ -125,17 +124,17 @@ class RetrieveEvidenceDialog extends CancelAndHelpDialog {
     }
 
     async showSelectedEvidence(stepContext) {
-        if(!isNaN(stepContext.result) && Number(stepContext.result) > 0 && Number(stepContext.result) <= Object.keys(this.timestampedEvidence).length){
+        if (!isNaN(stepContext.result) && Number(stepContext.result) > 0 && Number(stepContext.result) <= Object.keys(this.timestampedEvidence).length) {
             const selectedOption = Number(stepContext.result);
-            const date = new Date(Number(Object.keys(this.timestampedEvidence)[selectedOption - 1]))
-            const relativeDate = moment(date, "YYYYMMDD").fromNow();
+            const date = new Date(Number(Object.keys(this.timestampedEvidence)[selectedOption - 1]));
+            const relativeDate = moment(date, 'YYYYMMDD').fromNow();
             const reply = {
                 type: 'message',
-                text: `${relativeDate}`,
+                text: `${ relativeDate }`,
                 attachments: this.timestampedEvidence[Object.keys(this.timestampedEvidence)[selectedOption - 1]]
             };
             await stepContext.context.sendActivity(reply);
-            return await stepContext.replaceDialog(this.initialDialogId, { 
+            return await stepContext.replaceDialog(this.initialDialogId, {
                 restartMsg: this.prompt
             });
         }
