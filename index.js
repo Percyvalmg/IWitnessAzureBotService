@@ -21,7 +21,10 @@ const {
     CAPTURE_DIALOG,
     OTHER_HELP_DIALOG,
     CALL_POLICE_DIALOG,
-    CALL_POLICE_ON_BEHALF_OF_DIALOG
+    CALL_POLICE_ON_BEHALF_OF_DIALOG,
+    PROTECTION_ORDER_DIALOG,
+    PLACE_OF_SAFETY_DIALOG,
+    COUNSELLOR_DIALOG
 } = require('./models/dialogIdConstants');
 const { CaptureEvidenceDialog } = require('./dialogs/captureEvidenceDialog');
 const { EmergencyDialog } = require('./dialogs/emergencyDialog');
@@ -31,6 +34,10 @@ const { OtherHelpDialog } = require('./dialogs/otherHelpDialog');
 const { CaptureDialog } = require('./dialogs/captureDialog');
 const { CallPoliceDialog } = require('./dialogs/callPoliceDialog');
 const { CallPoliceOnBehalfOfDialog } = require('./dialogs/callPoliceOnBehalfOfDialog');
+const { PlaceOfSafetyDialog } = require('./dialogs/placeOfSafetyDialog');
+const { ProtectionOrderDialog } = require('./dialogs/protectionOrderDialog');
+const { CounsellorDialog } = require('./dialogs/counsellorDialog');
+
 const { TwilioWhatsAppAdapter } = require('@botbuildercommunity/adapter-twilio-whatsapp');
 const { FacebookAdapter } = require('botbuilder-adapter-facebook');
 
@@ -94,10 +101,13 @@ const luisConfig = {
 const luisRecognizer = new IWitnessRecognizer(luisConfig);
 const databaseService = new DatabaseService(storage);
 
+const placeOfSafetyDialog = new PlaceOfSafetyDialog(PLACE_OF_SAFETY_DIALOG);
+const counsellorDialog = new CounsellorDialog(COUNSELLOR_DIALOG);
+const protectionOrderDialog = new ProtectionOrderDialog(PROTECTION_ORDER_DIALOG);
 const callPoliceOnBehalfOfDialog = new CallPoliceOnBehalfOfDialog(CALL_POLICE_ON_BEHALF_OF_DIALOG);
 const callPoliceDialog = new CallPoliceDialog(CALL_POLICE_DIALOG, callPoliceOnBehalfOfDialog);
 const authenticationDialog = new AuthenticationDialog(AUTHENTICATION_DIALOG, databaseService);
-const otherHelpDialog = new OtherHelpDialog(OTHER_HELP_DIALOG);
+const otherHelpDialog = new OtherHelpDialog(OTHER_HELP_DIALOG, luisRecognizer, protectionOrderDialog, placeOfSafetyDialog, counsellorDialog);
 const captureDialog = new CaptureDialog(CAPTURE_DIALOG);
 const captureEvidenceDialog = new CaptureEvidenceDialog(CAPTURE_EVIDENCE_DIALOG, authenticationDialog, captureDialog, databaseService);
 const emergencyDialog = new EmergencyDialog(EMERGENCY_DIALOG, luisRecognizer, otherHelpDialog, callPoliceDialog);

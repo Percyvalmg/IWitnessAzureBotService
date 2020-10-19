@@ -25,7 +25,8 @@ class EmergencyDialog extends CancelAndHelpDialog {
     async introStep(stepContext) {
         return await stepContext.prompt(TEXT_PROMPT, 'Should I call the police or ask for other help?' +
             '\n\n1. Call Police' +
-            '\n2. Other Help');
+            '\n2. Other Help' +
+            '\n3. Cancel');
     }
 
     async actStep(stepContext) {
@@ -45,6 +46,8 @@ class EmergencyDialog extends CancelAndHelpDialog {
                 return await stepContext.beginDialog(CALL_POLICE_DIALOG);
             case '2':
                 return await stepContext.beginDialog(OTHER_HELP_DIALOG);
+            case '3':
+                return await stepContext.endDialog();
             default: {
                 const didntUnderstandMessageText = `Sorry, I didn't get that. Please try asking in a different way (intent was ${ LuisRecognizer.topIntent(luisResult) })\n
              \n\n The IWitness Team is currently working on making me better`;
