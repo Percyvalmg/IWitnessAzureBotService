@@ -92,20 +92,23 @@ class RetrievalMenuDialog extends CancelAndHelpDialog {
         this.timestampedEvidence = [];
         let index = 0;
 
-        sortedEvidence.forEach(value => {
+        for (const sortedIndex in sortedEvidence) {
+            const value = sortedEvidence[sortedIndex];
             let tempEvidence = [];
+
             if (this.timestampedEvidence[value.timestamp] !== undefined) {
                 tempEvidence = this.timestampedEvidence[value.timestamp].map(e => {
                     index = index + 1;
                     return e;
                 });
             } else {
-                messagePrompt = messagePrompt + '\n' + index + 1 + '. ' + moment(new Date(value.timestamp), 'YYYYMMDD').fromNow();
+                messagePrompt = messagePrompt + '\n' + (index + 1) + '. ' + moment(new Date(value.timestamp), 'YYYYMMDD').fromNow();
             }
+
             tempEvidence[index] = value;
             this.timestampedEvidence[value.timestamp] = tempEvidence;
-        });
-        
+        }
+
         messagePrompt = messagePrompt + '\n\n' + '<Send any message to go to the main menu>';
         return messagePrompt;
     }
