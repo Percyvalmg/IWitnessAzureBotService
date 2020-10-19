@@ -137,7 +137,7 @@ class RetrievalMenuDialog extends CancelAndHelpDialog {
             const selectedOption = Number(stepContext.result);
             const date = new Date(Number(Object.keys(this.timestampedEvidence)[selectedOption - 1]));
             const relativeDate = moment(date, 'YYYYMMDD').fromNow();
-            const isWhatsApp = true;// stepContext.parent.context.activity.channelId === 'whatsapp';
+            const isWhatsApp = stepContext.parent.context.activity.channelId === 'whatsapp';
 
             if (isWhatsApp) {
                 await this.showEvidenceForWhatsApp(stepContext, selectedOption);
