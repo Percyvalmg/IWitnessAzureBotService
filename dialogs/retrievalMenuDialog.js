@@ -109,7 +109,7 @@ class RetrievalMenuDialog extends CancelAndHelpDialog {
                 tempEvidence[index] = value;
                 this.timestampedEvidence[value.timestamp] = tempEvidence;
             });
-            messagePrompt = messagePrompt + '\n\n' + '<Press any other key to go to the main menu>';
+            messagePrompt = messagePrompt + '\n\n' + '<Send any message to go to the main menu>';
             return await stepContext.prompt(TEXT_PROMPT, { prompt: messagePrompt });
         } else {
             await stepContext.context.sendActivity('We do not have any evidence for you');
