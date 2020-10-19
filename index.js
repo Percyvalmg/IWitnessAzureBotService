@@ -73,10 +73,6 @@ const storage = new CosmosDbPartitionedStorage({
 const onTurnErrorHandler = async (context, error) => {
     console.error(`\n [onTurnError] unhandled error: ${ error }`);
 
-    if (error.contains('LUIS Recognition Error')) {
-        return;
-    }
-
     await context.sendTraceActivity(
         'OnTurnError Trace',
         `${ error }`,
