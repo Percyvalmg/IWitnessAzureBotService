@@ -1,12 +1,11 @@
 const { ConfirmPrompt, TextPrompt, WaterfallDialog } = require('botbuilder-dialogs');
-const moment = require('moment');
 const { CancelAndHelpDialog } = require('./cancelAndHelpDialog');
 const { CONFIRM_PROMPT, TEXT_PROMPT, AUTHENTICATION_DIALOG, RETRIEVAL_MENU_DIALOG, RETRIEVE_EVIDENCE_DIALOG } = require('../models/dialogIdConstants');
 
 const WATERFALL_DIALOG = 'waterfallDialog';
 
 class RetrieveEvidenceDialog extends CancelAndHelpDialog {
-    constructor(id, authenticationDialog, retrievalMenuDialog ,) {
+    constructor(id, authenticationDialog, retrievalMenuDialog) {
         super(id || RETRIEVE_EVIDENCE_DIALOG);
 
         this.addDialog(new TextPrompt(TEXT_PROMPT))

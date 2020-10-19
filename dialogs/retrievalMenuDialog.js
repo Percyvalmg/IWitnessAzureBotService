@@ -1,13 +1,13 @@
 const { ConfirmPrompt, TextPrompt, WaterfallDialog } = require('botbuilder-dialogs');
 const moment = require('moment');
 const { CancelAndHelpDialog } = require('./cancelAndHelpDialog');
-const { CONFIRM_PROMPT, TEXT_PROMPT, AUTHENTICATION_DIALOG, RETRIEVE_EVIDENCE_DIALOG } = require('../models/dialogIdConstants');
+const { CONFIRM_PROMPT, TEXT_PROMPT, RETRIEVAL_MENU_DIALOG } = require('../models/dialogIdConstants');
 
 const WATERFALL_DIALOG = 'waterfallDialog';
 
 class RetrievalMenuDialog extends CancelAndHelpDialog {
     constructor(id, databaseServices) {
-        super(id || RETRIEVE_EVIDENCE_DIALOG);
+        super(id || RETRIEVAL_MENU_DIALOG);
         this.dbServices = databaseServices;
         this.timestampedEvidence = {};
         this.evidence = [];
