@@ -104,7 +104,9 @@ class RetrievalMenuDialog extends CancelAndHelpDialog {
                         return e;
                     });
                 } else {
-                    messagePrompt = messagePrompt + '\n' + index + 1 + '. ' + moment(new Date(value.timestamp), 'YYYYMMDD').fromNow();
+                    let newIndex = index + 1;
+                    console.log(newIndex)
+                    messagePrompt = messagePrompt + '\n' + newIndex + '. ' + moment(new Date(value.timestamp), 'YYYYMMDD').fromNow();
                 }
                 tempEvidence[index] = value;
                 this.timestampedEvidence[value.timestamp] = tempEvidence;
