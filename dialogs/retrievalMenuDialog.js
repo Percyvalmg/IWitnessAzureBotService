@@ -96,17 +96,17 @@ class RetrievalMenuDialog extends CancelAndHelpDialog {
             this.timestampedEvidence = [];
             let index = 0;
 
-            sortedEvidence.forEach((value, currentIndex)=> {
+            sortedEvidence.forEach((value, currentIndex) => {
                 if (this.timestampedEvidence[value.timestamp] === undefined) {
-                    console.log(index + 1)
+                    console.log(index + 1);
                     messagePrompt = messagePrompt + '\n' + (index + 1) + '. ' + moment(new Date(value.timestamp), 'YYYYMMDD').fromNow();
                     index++;
-                    this.timestampedEvidence[value.timestamp] = [value]
-                }else {
-                    this.timestampedEvidence[value.timestamp][this.timestampedEvidence[value.timestamp].length] = value
+                    this.timestampedEvidence[value.timestamp] = [value];
+                } else {
+                    this.timestampedEvidence[value.timestamp][this.timestampedEvidence[value.timestamp].length] = value;
                 }
             });
-            console.log(this.timestampedEvidence)
+            console.log(this.timestampedEvidence);
 
             messagePrompt = messagePrompt + '\n\n' + '<Send any message to go to the main menu>';
             return await stepContext.prompt(TEXT_PROMPT, { prompt: messagePrompt });
