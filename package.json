@@ -21,7 +21,7 @@
         "botbuilder": "~4.10.3",
         "botbuilder-adapter-facebook": "^1.0.11",
         "botbuilder-ai": "~4.10.3",
-        "botbuilder-azure": "^4.10.4",
+        "botbuilder-azure": "^4.18.0",
         "botbuilder-dialogs": "~4.10.3",
         "botbuilder-testing": "~4.10.3",
         "dotenv": "^8.2.0",
